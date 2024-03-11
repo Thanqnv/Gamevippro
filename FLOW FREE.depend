@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1710085520 source:d:\c++\flow free\main.cpp
+	<SDL.h>
+	<stdio.h>
+
