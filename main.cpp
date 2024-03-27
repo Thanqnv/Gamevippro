@@ -15,6 +15,10 @@ std::string imageFiles[NUM_IMAGES] = {
 // Đường dẫn của thư mục chứa các ảnh
 std::string imageDir = "image/chu/";
 
+// Vị trí mới cho ảnh khi nhấn đúp chuột
+const int NEW_IMAGE_X = 150;
+const int NEW_IMAGE_Y = 450;
+
 int main(int argc, char* argv[])
 {
     // Khởi tạo SDL2
@@ -105,13 +109,20 @@ int main(int argc, char* argv[])
     deRect.w = 522; // Chiều rộng
     deRect.h = 200; // Chiều cao
 
+    // Xác định vị trí và kích thước của hình ảnh mới
+    SDL_Rect newImageRect;
+    newImageRect.x = NEW_IMAGE_X;
+    newImageRect.y = NEW_IMAGE_Y;
+    newImageRect.w = IMAGE_SIZE;
+    newImageRect.h = IMAGE_SIZE;
+
     // Xóa màn hình
     SDL_RenderClear(renderer);
 
     // Vẽ hình ảnh nền lên renderer
     SDL_RenderCopy(renderer, backgroundTexture, nullptr, &backgroundRect);
 
-    // Vẽ hình ảnh khác lên renderer
+        // Vẽ hình ảnh khác lên renderer
     SDL_RenderCopy(renderer, cauhoiTexture, nullptr, &cauhoiRect);
 
     // Vẽ hình ảnh khác lên renderer
@@ -131,7 +142,6 @@ int main(int argc, char* argv[])
             std::cerr << "Failed to load image: " << imagePath << std::endl;
             continue;
         }
-
 
         // Thay đổi kích thước ảnh
         SDL_Surface* resizedSurface = SDL_CreateRGBSurface(0, IMAGE_SIZE, IMAGE_SIZE, 32, 0, 0, 0, 0);
@@ -162,11 +172,6 @@ int main(int argc, char* argv[])
     // Hiển thị renderer lên cửa sổ
     SDL_RenderPresent(renderer);
 
-    // Theo dõi trạng thái kéo thả
-    bool isDragging = false;
-    int draggedIndex = -1;
-    int offsetX, offsetY;
-
     // Theo dõi sự kiện
     bool quit = false;
     SDL_Event event;
@@ -178,64 +183,24 @@ int main(int argc, char* argv[])
             {
                 quit = true;
             }
-            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            else if (event.type == SDL_MOUSEBUTTONUP && event.button.clicks == 2) // Khi nhấn đúp chuột
             {
-                if (event.button.button == SDL_BUTTON_LEFT)
+                // Kiểm tra xem chuột có nằm trong một hình ảnh không
+                for (int i = 0; i < NUM_IMAGES; ++i)
                 {
-                    // Kiểm tra xem chuột có nằm trong một hình ảnh không
-                    for (int i = 0; i < NUM_IMAGES; ++i)
+                    if (event.button.x >= destRect[i].x && event.button.x <= destRect[i].x + destRect[i].w &&
+                        event.button.y >= destRect[i].y && event.button.y <= destRect[i].y + destRect[i].h)
                     {
-                        if (event.button.x >= destRect[i].x && event.button.x <= destRect[i].x + destRect[i].w &&
-                            event.button.y >= destRect[i].y && event.button.y <= destRect[i].y + destRect[i].h)
-                        {
-                            isDragging = true;
-                            draggedIndex = i;
-                            offsetX = event.button.x - destRect[i].x;
-                            offsetY = event.button.y - destRect[i].y;
-                            break;
-                        }
+                        // Sao chép và in lại ảnh tại vị trí mới
+                        SDL_RenderCopy(renderer, textures[i], nullptr, &newImageRect);
+                        break;
                     }
                 }
-            }
-            else if (event.type == SDL_MOUSEBUTTONUP)
-            {
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    isDragging = false;
-                    draggedIndex = -1;
-                }
-            }
-            else if (event.type == SDL_MOUSEMOTION)
-            {
-                if (isDragging && draggedIndex != -1)
-                {
-                    // Cập nhật vị trí mới của ảnh khi di chuyển
-                    destRect[draggedIndex].x = event.motion.x - offsetX;
-                    destRect[draggedIndex].y = event.motion.y - offsetY;
-                }
+
+                // Hiển thị renderer lên cửa sổ
+                SDL_RenderPresent(renderer);
             }
         }
-
-        // Xóa màn hình
-        SDL_RenderClear(renderer);
-
-        // Vẽ hình ảnh nền lên renderer
-        SDL_RenderCopy(renderer, backgroundTexture, nullptr, &backgroundRect);
-
-        // Vẽ hình ảnh khác lên renderer
-        SDL_RenderCopy(renderer, cauhoiTexture, nullptr, &cauhoiRect);
-
-        // Vẽ hình ảnh khác lên renderer
-        SDL_RenderCopy(renderer, deTexture, nullptr, &deRect);
-
-        // Hiển thị các ảnh đã di chuyển
-        for (int i = 0; i < NUM_IMAGES; ++i)
-        {
-            SDL_RenderCopy(renderer, textures[i], nullptr, &destRect[i]);
-        }
-
-        // Hiển thị renderer lên cửa sổ
-        SDL_RenderPresent(renderer);
     }
 
     // Giải phóng bộ nhớ và thoát
