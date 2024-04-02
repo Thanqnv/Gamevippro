@@ -2,6 +2,7 @@
 #include "Loadimage.h"
 #include <SDL.h>
 #include <SDL_image.h>
+#include <fstream>
 
 std::string imageFiles[NUM_IMAGES] = {
     "a.png", "b.png", "c.png", "d.png", "e.png", "f.png", "g.png", "h.png", "i.png", "k.png", "l.png", "m.png",
@@ -35,7 +36,7 @@ void runSDL() {
         return;
     }
 
-    SDL_Surface* backgroundSurface = IMG_Load("image/background.jpg");
+    SDL_Surface* backgroundSurface = IMG_Load("image/background.png");
     if (backgroundSurface == nullptr) {
         std::cerr << "Unable to load image! SDL_Error: " << SDL_GetError() << std::endl;
         return;
@@ -62,14 +63,25 @@ void runSDL() {
     SDL_Texture* deTexture = SDL_CreateTextureFromSurface(renderer, deSurface);
     SDL_FreeSurface(deSurface);
 
+    SDL_Surface* hcnSurface = IMG_Load("image/hcn.jpg");
+    if (hcnSurface == nullptr) {
+        std::cerr << "Unable to load image from image! SDL_Error: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    SDL_Texture* hcnTexture = SDL_CreateTextureFromSurface(renderer, hcnSurface);
+    SDL_FreeSurface(hcnSurface);
+
     SDL_Rect backgroundRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    SDL_Rect cauhoiRect = {110, 100, 500, 400};
+    SDL_Rect cauhoiRect = {110, 100, 500, 275};
+    SDL_Rect hcnRect = {110, 380, 500, 100};
     SDL_Rect deRect = {105, 490, 522, 200};
     SDL_Rect newImageRect = {150, 450, IMAGE_SIZE, IMAGE_SIZE};
 
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, backgroundTexture, nullptr, &backgroundRect);
     SDL_RenderCopy(renderer, cauhoiTexture, nullptr, &cauhoiRect);
+    SDL_RenderCopy(renderer, hcnTexture, nullptr, &hcnRect);
     SDL_RenderCopy(renderer, deTexture, nullptr, &deRect);
 
     SDL_Texture* textures[NUM_IMAGES];
@@ -115,16 +127,6 @@ void runSDL() {
             if (event.type == SDL_QUIT) {
                 quit = true;
             }
-            else if (event.type == SDL_MOUSEBUTTONUP && event.button.clicks == 2) {
-                for (int i = 0; i < NUM_IMAGES; ++i) {
-                    if (event.button.x >= destRect[i].x && event.button.x <= destRect[i].x + destRect[i].w &&
-                        event.button.y >= destRect[i].y && event.button.y <= destRect[i].y + destRect[i].h) {
-                        SDL_RenderCopy(renderer, textures[i], nullptr, &newImageRect);
-                        break;
-                    }
-                }
-                SDL_RenderPresent(renderer);
-            }
         }
     }
 
@@ -136,6 +138,7 @@ void runSDL() {
 
     SDL_DestroyTexture(backgroundTexture);
     SDL_DestroyTexture(cauhoiTexture);
+    SDL_DestroyTexture(hcnTexture);
     SDL_DestroyTexture(deTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

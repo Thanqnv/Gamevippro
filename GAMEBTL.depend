@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1711817440 source:d:\c++\gamebtl\loadimage.cpp
+	<iostream>
+	"Loadimage.h"
+	<SDL.h>
+	<SDL_image.h>
+
+1711817440 d:\c++\gamebtl\loadimage.h
+	<string>
+
+1711817440 source:d:\c++\gamebtl\main.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	"Loadimage.h"
+
