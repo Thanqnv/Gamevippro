@@ -1,194 +1,162 @@
-//#include <iostream>
-//#include <SDL.h>
-//#include <SDL_image.h>
-//#include "Loadimage.h"
-//
-//using namespace std;
-//
-//int WinMain(int argc, char* argv[]) {
-//    runSDL(); // Gọi hàm từ file header
-//    return 0;
-//}
-
-
 #include <SDL.h>
 #include <SDL_image.h>
-#include <SDL_mixer.h>
 #include <iostream>
+#include <string>
 #include <vector>
-#include <cmath>
 
-#include "cnst.h"
-#include "media.h"
-#include "entity.h"
-#include "map.h"
+const int WIN_WIDTH = 800;
+const int WIN_HEIGHT = 600;
+const int PLAYER_SPEED = 15; // Tăng tốc độ di chuyển
 
-constexpr int WIN_W = 1000;     //program window dimensions
-    constexpr int WIN_H = 800;
-    constexpr int TILE_SIZE = 50;   //size of tiles in pixels
-    constexpr int TIME_STEP = 10;   //game simulation time step in milliseconds
-    //animation modes
-    constexpr int ANIM_REPEAT = 0;  //loop
-    constexpr int ANIM_END = 1;     //play once and stop
-    constexpr int ANIM_DEFAULT = 2; //play once, set animNo to 0 and loop
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+SDL_Texture* player = NULL;
 
-    constexpr int TERMINAL_VEL = 23;    //max downward velocity
+// Animation clip structure
+struct Clip {
+    int x, y;
+    int w, h;
+};
 
-int main(int argc, char* args[])
-{
-    //init systems
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) > 0 ) std::cout << "SDL failed: " << SDL_GetError() << std::endl;          //SDL
-    if(!IMG_Init(IMG_INIT_PNG)) std::cout << "IMG failed: " << IMG_GetError() << std::endl;                                 //images
-    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) std::cout << "Sound failed: " << Mix_GetError() << std::endl; //sounds
+// Function to load texture from file
+SDL_Texture* loadTexture(const std::string& file) {
+    SDL_Surface* surface = IMG_Load(file.c_str());
+    if (!surface) {
+        std::cerr << "Failed to load image: " << SDL_GetError() << std::endl;
+        return NULL;
+    }
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    return texture;
+}
 
-    //create window and renderer
-    SDL_Window *window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, cnst::WIN_W, cnst::WIN_H, SDL_WINDOW_SHOWN);
-    if (window==NULL) std::cout << "Window failed: " << SDL_GetError() << std::endl;
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+// Function to render texture at specified position
+void renderTexture(SDL_Texture* texture, int x, int y, SDL_Rect* clip = NULL) {
+    SDL_Rect rect = { x, y, 0, 0 };
+    if (clip) {
+        rect.w = clip->w;
+        rect.h = clip->h;
+    } else {
+        SDL_QueryTexture(texture, NULL, NULL, &rect.w, &rect.h);
+    }
+    SDL_RenderCopy(renderer, texture, clip, &rect);
+}
 
-    //get monitor refresh rate
-    SDL_DisplayMode mode;
-    SDL_GetDisplayMode(SDL_GetWindowDisplayIndex(window), 0, &mode);
-    const float refreshRate = mode.refresh_rate;
+// Function to create animation clips
+std::vector<Clip> makeClips(int startX, int numFrames, int width, int height) {
+    std::vector<Clip> clips;
+    for (int i = 0; i < numFrames; ++i) {
+        Clip clip = { startX + i * width, 0, width, height };
+        clips.push_back(clip);
+    }
+    return clips;
+}
 
-    Media media(renderer);    //media manager/storage
-
-    int offsetX, offsetY, targetOffsetX, targetOffsetY;
-
-    Map map(&media, &offsetX, &offsetY, &targetOffsetX, &targetOffsetY);
-
-    //player
-    AnimEntity dust1(-100, -100, media.dustTex, cnst::TILE_SIZE, cnst::TILE_SIZE, &media.dustClips);
-    AnimEntity dust2(-100, -100, media.dustTex, cnst::TILE_SIZE, cnst::TILE_SIZE, &media.dustClips);
-    Player player(3 * cnst::TILE_SIZE, 31 * cnst::TILE_SIZE, media.playerTex, &media.playerClips, media.jumpSfx, media.dashSfx, media.thudSfx, &dust1, &dust2);
-    player.setAnim(0, cnst::ANIM_REPEAT, 80);
-
-    //doors
-    Door door1(16 * cnst::TILE_SIZE, 28 * cnst::TILE_SIZE, media.doorTex, &media.doorClips, media.doorSfx, &player);
-    Door door2(23 * cnst::TILE_SIZE, 19 * cnst::TILE_SIZE, media.doorTex, &media.doorClips, media.doorSfx, &player);
-
-    //keys
-    Key key1(30 * cnst::TILE_SIZE, 43 * cnst::TILE_SIZE, media.keyTex, &media.keyClips, media.keySfx, &player);
-    Key key2(13 * cnst::TILE_SIZE, 11 * cnst::TILE_SIZE, media.keyTex, &media.keyClips, media.keySfx, &player);
-
-    //tutorial
-    Entity tutorial(6 * cnst::TILE_SIZE, 26 * cnst::TILE_SIZE, media.tutorialTex, 450, 250, 0);
-
-    //entities in the game to be iteratively updated    (in render order)
-    std::vector<Entity *> entities;
-    entities.push_back(&tutorial);
-    entities.push_back(&door1);
-    entities.push_back(&door2);
-    entities.push_back(&key1);
-    entities.push_back(&key2);
-    entities.push_back(&dust1);
-    entities.push_back(&dust2);
-    entities.push_back(&player);
-
-    Mix_PlayMusic(media.bgMusic, -1); //play music
-
-    SDL_Event event;
-    int startTicks;                         //time at start of frame
-    int prevStartTicks = SDL_GetTicks();    //time since previous start of frame
-    int prevFrameTicks;                     //duration of last frame
-    int accumulator = 0;                    //time accumulated for decoupling frame rate and game loop
-
-    bool gameRunning = true;
-    while(gameRunning)
-    {
-        startTicks = SDL_GetTicks();
-        prevFrameTicks = startTicks - prevStartTicks;
-        prevStartTicks = startTicks;
-        accumulator += prevFrameTicks;          //frame time is added to the accumulator
-        while(accumulator >= cnst::TIME_STEP)   //if there is enough time accumulated to advance the simulation:
-        {
-            while(SDL_PollEvent(&event))        //take each event from the queue
-            {
-                if(event.type == SDL_QUIT) gameRunning = false;
-
-                //process pressed keys (registered once)
-                if(event.type == SDL_KEYDOWN && event.key.repeat == 0)
-                {
-                    switch(event.key.keysym.sym)
-                    {
-                    case SDLK_SPACE:
-                        if (player.canDoubleJump && !player.onGround) player.jump();
-                        break;
-                    case SDLK_LSHIFT:
-                        player.dash();
-                    }
-                }
-            }
-
-            //process held keys (registered continuously)
-            const Uint8 *keyState = SDL_GetKeyboardState(NULL);         //current state of keyboard
-
-            if(keyState[SDL_SCANCODE_LEFT])                             //if left is being held
-            {
-                player.moveLeft();
-            }
-            if(keyState[SDL_SCANCODE_RIGHT])                            //if right is being held
-            {
-                player.moveRight();
-            }
-            if(keyState[SDL_SCANCODE_SPACE] && player.onGround)         //if space is being held and player is on ground
-            {
-                player.jump();
-            }
-
-            player.drag(0.9);                                                   //set default drag force
-            if(!keyState[SDL_SCANCODE_LEFT] && !keyState[SDL_SCANCODE_RIGHT])   //if not moving left or right
-            {
-                if (player.onGround) player.drag(0.7);                          //extra drag when standing on floor
-                if (player.getAnim() != 0 && player.getAnim() != 3) player.setAnim(0, cnst::ANIM_REPEAT, 80);   //idle animation when not moving
-            }
-
-            //update entity physics
-
-            for (auto i = entities.end() - 1; i >= entities.begin(); i--)   //iterate through entities (in reverse, so that deleting an entity will not skip the next)
-            {
-                Entity *e = *i;
-                if (e->deleted)
-                {
-                    entities.erase(i);  //remove from entitiy list
-                    continue;
-                }
-                e->updateGravity(0.5);
-                e->updateCollisions(&map);
-                e->updateKeyDoor(&map);
-                e->updatePos();
-            }
-
-            map.updateCamera(&player);          //update camera offsets and zones
-
-            accumulator -= cnst::TIME_STEP;     //remove simulated time from the accumulator
-        }
-
-        SDL_SetRenderDrawColor(renderer, 0, 0, 50, 255);
-        SDL_RenderClear(renderer);              //clear screen with dark blue
-
-        //render entities
-        map.drawParralax(renderer);
-        map.drawMap(renderer);
-        for (Entity *e : entities)
-        {
-            e->updateClips();
-            e->render(-offsetX, -offsetY, renderer);
-        }
-
-
-        SDL_RenderPresent(renderer);     //present rendered image to screen
-
-        //delay loop to match refresh rate
-        int frameTicks = SDL_GetTicks() - startTicks;   //ticks since start of frame
-        if(frameTicks < 1000/refreshRate)               //if frame was too quick
-        {
-            SDL_Delay(1000/refreshRate - frameTicks);   //delay
-        }
+int main(int argc, char* args[]) {
+    // Initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return 1;
     }
 
-    SDL_DestroyWindow(window);   //destroy window
-    SDL_Quit();                 //close SDL
+    // Create window
+    window = SDL_CreateWindow("Control Player", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (!window) {
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        SDL_Quit();
+        return 1;
+    }
+
+    // Create renderer
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    // Load player texture
+    std::string basePath = "res/gfx/";
+    player = loadTexture(basePath + "player.png");
+    if (!player) {
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    // Animation clips
+    std::vector<std::vector<Clip>> playerClips;
+    playerClips.push_back(makeClips(0, 4, 70, 70)); // First animation set
+    playerClips.push_back(makeClips(1, 4, 70, 70)); // Second animation set
+    playerClips.push_back(makeClips(2, 4, 70, 70)); // Third animation set
+    playerClips.push_back(makeClips(3, 4, 70, 70)); // Fourth animation set
+
+    // Initial position of player
+    int playerX = (WIN_WIDTH - 64) / 2;
+    int playerY = (WIN_HEIGHT - 64) / 2;
+
+    // Main loop
+    bool quit = false;
+    int animationIndex = 0;
+    int frameIndex = 0;
+    SDL_Event e;
+    while (!quit) {
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_UP:
+                        playerY -= PLAYER_SPEED;
+                        if (playerY < 0) playerY = 0; // Giới hạn không vượt quá biên trên
+                        break;
+                    case SDLK_DOWN:
+                        playerY += PLAYER_SPEED;
+                        if (playerY + playerClips[animationIndex][frameIndex].h > WIN_HEIGHT) // Giới hạn không vượt quá biên dưới
+                            playerY = WIN_HEIGHT - playerClips[animationIndex][frameIndex].h;
+                        break;
+                    case SDLK_LEFT:
+                        playerX -= PLAYER_SPEED;
+                        if (playerX < 0) playerX = 0; // Giới hạn không vượt quá biên trái
+                        break;
+                    case SDLK_RIGHT:
+                        playerX += PLAYER_SPEED;
+                        if (playerX + playerClips[animationIndex][frameIndex].w > WIN_WIDTH) // Giới hạn không vượt quá biên phải
+                            playerX = WIN_WIDTH - playerClips[animationIndex][frameIndex].w;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        // Clear renderer
+        SDL_RenderClear(renderer);
+
+        // Get current clip rectangle
+        SDL_Rect clipRect = { playerClips[animationIndex][frameIndex].x, playerClips[animationIndex][frameIndex].y,
+                               playerClips[animationIndex][frameIndex].w, playerClips[animationIndex][frameIndex].h };
+
+        // Render player animation at current position
+        renderTexture(player, playerX, playerY, &clipRect);
+
+        // Present renderer
+        SDL_RenderPresent(renderer);
+
+        // Delay for a short period to control animation speed
+        SDL_Delay(100); // Adjust this value to change animation speed
+
+        // Update frame index for animation
+        frameIndex = (frameIndex + 1) % playerClips[animationIndex].size();
+    }
+
+    // Cleanup
+    SDL_DestroyTexture(player);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     return 0;
 }
