@@ -1,147 +1,55 @@
-#include <iostream>
-#include "Loadimage.h"
-#include <SDL.h>
-#include <SDL_image.h>
-#include <fstream>
+#include "BaseObject.hpp"
 
-std::string imageFiles[NUM_IMAGES] = {
-    "a.png", "b.png", "c.png", "d.png", "e.png", "f.png", "g.png", "h.png", "i.png", "k.png", "l.png", "m.png",
-    "n.png", "o.png", "p.png", "q.png", "r.png", "s.png", "t.png", "u.png", "v.png", "w.png", "x.png", "y.png"};
+BaseObject::BaseObject()
+{
+    p_object = NULL;
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 0;
+    rect.h = 0;
+}
 
-std::string imageDir = "image/chu/";
+BaseObject::~BaseObject()
+{
+    Free();
+}
 
+bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
+{
+    SDL_Texture* new_texture = NULL;
 
-
-void runSDL() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Window* window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (window == nullptr) {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == nullptr) {
-        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    int imgFlags = IMG_INIT_JPG;
-    if (!(IMG_Init(imgFlags) & imgFlags)) {
-        std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Surface* backgroundSurface = IMG_Load("image/background.png");
-    if (backgroundSurface == nullptr) {
-        std::cerr << "Unable to load image! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
-    SDL_FreeSurface(backgroundSurface);
-
-    SDL_Surface* cauhoiSurface = IMG_Load("image/cauhoi/cau1.jpg");
-    if (cauhoiSurface == nullptr) {
-        std::cerr << "Unable to load image from image/cauhoi! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Texture* cauhoiTexture = SDL_CreateTextureFromSurface(renderer, cauhoiSurface);
-    SDL_FreeSurface(cauhoiSurface);
-
-    SDL_Surface* deSurface = IMG_Load("image/de.png");
-    if (deSurface == nullptr) {
-        std::cerr << "Unable to load image from image! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Texture* deTexture = SDL_CreateTextureFromSurface(renderer, deSurface);
-    SDL_FreeSurface(deSurface);
-
-    SDL_Surface* hcnSurface = IMG_Load("image/hcn.jpg");
-    if (hcnSurface == nullptr) {
-        std::cerr << "Unable to load image from image! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Texture* hcnTexture = SDL_CreateTextureFromSurface(renderer, hcnSurface);
-    SDL_FreeSurface(hcnSurface);
-
-    SDL_Rect backgroundRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    SDL_Rect cauhoiRect = {110, 100, 500, 275};
-    SDL_Rect hcnRect = {110, 380, 500, 100};
-    SDL_Rect deRect = {105, 490, 522, 200};
-    SDL_Rect newImageRect = {150, 450, IMAGE_SIZE, IMAGE_SIZE};
-
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, backgroundTexture, nullptr, &backgroundRect);
-    SDL_RenderCopy(renderer, cauhoiTexture, nullptr, &cauhoiRect);
-    SDL_RenderCopy(renderer, hcnTexture, nullptr, &hcnRect);
-    SDL_RenderCopy(renderer, deTexture, nullptr, &deRect);
-
-    SDL_Texture* textures[NUM_IMAGES];
-    SDL_Rect destRect[NUM_IMAGES];
-    int x = 125, y = 560;
-
-    for (int i = 0; i < NUM_IMAGES; ++i) {
-        std::string imagePath = imageDir + imageFiles[i];
-        SDL_Surface* imageSurface = IMG_Load(imagePath.c_str());
-        if (imageSurface == nullptr) {
-            std::cerr << "Failed to load image: " << imagePath << std::endl;
-            continue;
+    SDL_Surface* load_surface = IMG_Load(path.c_str());
+    if (load_surface != NULL)
+    {
+        SDL_SetColorKey(load_surface, SDL_TRUE, SDL_MapRGB(load_surface->format, COLOR_KEY_R, COLOR_KEY_G, COLOR_KEY_B));
+        new_texture = SDL_CreateTextureFromSurface(screen, load_surface);
+        if (new_texture != NULL)
+        {
+            rect.w = load_surface->w;
+            rect.h = load_surface->h;
         }
 
-        SDL_Surface* resizedSurface = SDL_CreateRGBSurface(0, IMAGE_SIZE, IMAGE_SIZE, 32, 0, 0, 0, 0);
-        SDL_Rect stretchRect = {0, 0, IMAGE_SIZE, IMAGE_SIZE};
-        SDL_BlitScaled(imageSurface, nullptr, resizedSurface, &stretchRect);
-
-        textures[i] = SDL_CreateTextureFromSurface(renderer, resizedSurface);
-        SDL_FreeSurface(imageSurface);
-        SDL_FreeSurface(resizedSurface);
-
-        if (textures[i] != nullptr) {
-            SDL_QueryTexture(textures[i], nullptr, nullptr, &destRect[i].w, &destRect[i].h);
-            destRect[i].x = x;
-            destRect[i].y = y;
-            SDL_RenderCopy(renderer, textures[i], nullptr, &destRect[i]);
-
-            x += IMAGE_SIZE + 10;
-            if (x >= 600 - IMAGE_SIZE) {
-                x = 125;
-                y += IMAGE_SIZE + 10;
-            }
-        }
+        SDL_FreeSurface(load_surface);
     }
+    p_object = new_texture;
 
-    SDL_RenderPresent(renderer);
+    return p_object != NULL;
+}
 
-    bool quit = false;
-    SDL_Event event;
-    while (!quit) {
-        while (SDL_PollEvent(&event) != 0) {
-            if (event.type == SDL_QUIT) {
-                quit = true;
-            }
-        }
+void BaseObject::Render(SDL_Renderer* des, const SDL_Rect* clip /* = NULL */)
+{
+    SDL_Rect render_quad = { rect.x, rect.y, rect.w, rect.h };
+
+    SDL_RenderCopy(des, p_object, clip, &render_quad);
+}
+
+void BaseObject::Free()
+{
+    if (p_object != NULL)
+    {
+        SDL_DestroyTexture(p_object);
+        p_object = NULL;
+        rect.w = 0;
+        rect.h = 0;
     }
-
-    for (int i = 0; i < NUM_IMAGES; ++i) {
-        if (textures[i] != nullptr) {
-            SDL_DestroyTexture(textures[i]);
-        }
-    }
-
-    SDL_DestroyTexture(backgroundTexture);
-    SDL_DestroyTexture(cauhoiTexture);
-    SDL_DestroyTexture(hcnTexture);
-    SDL_DestroyTexture(deTexture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    IMG_Quit();
-    SDL_Quit();
 }
