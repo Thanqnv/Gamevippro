@@ -33,9 +33,10 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="Loadimage.cpp" />
-		<Unit filename="Loadimage.h" />
+		<Unit filename="cnst.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="map.h" />
+		<Unit filename="media.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
