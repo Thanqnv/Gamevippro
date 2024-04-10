@@ -9,9 +9,8 @@
 1711817440 d:\c++\gamebtl\loadimage.h
 	<string>
 
-1711817440 source:d:\c++\gamebtl\main.cpp
-	<iostream>
-	<SDL.h>
-	<SDL_image.h>
-	"Loadimage.h"
+1712769804 source:d:\c++\gamebtl\main.cpp
+	"BaseObject.hpp"
+	"cnst.hpp"
+	"map.hpp"
 
