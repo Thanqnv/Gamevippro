@@ -33,6 +33,7 @@ void Entity::updatePos() {}
 void Entity::updateGravity(float gravity) {}
 void Entity::updateCollisions(Map *map) {}
 void Entity::updateKeyDoor(Map *map) {}
+void Entity::updateChest(Map *map) {}
 
 
 //---------------------------------------- AnimEntity ----------------------------------------
@@ -329,6 +330,7 @@ void Key::updateKeyDoor(Map *map)
     && player->getX() + 50 > x && player->getX() - currentClip.w < x
     && player->getY() + 50 > y && player->getY() - currentClip.h < y)
     {
+        std::cout << "true";
         collected = true;
         player->addKey();
         setAnim(1, cnst::ANIM_END, 1);      //blank frame
@@ -341,6 +343,35 @@ void Key::render(int offsetX, int offsetY, SDL_Renderer *renderer)
     SDL_Rect dest;
     dest.x = x + offsetX;
     dest.y = y + offsetY + 5*sin(SDL_GetTicks()/200.0f);    //key hovers up and down using sin(time)
+    dest.w = currentClip.w;
+    dest.h = currentClip.h;
+    SDL_RenderCopy(renderer, tex, &currentClip, &dest);
+}
+
+//---------------------------------------- Chest ----------------------------------------
+Chest::Chest(int x, int y, SDL_Texture *tex, std::vector<std::vector<SDL_Point>> *clips, Mix_Chunk *chestSfx, Player *player)
+: AnimEntity(x, y, tex, 100, 100, clips), collected(0), chestSfx(chestSfx), player(player)
+{}
+
+void Chest::updateChest(Map *map)
+{
+    if (/*!collected
+    &&*/ player->getX() + 100 > x && player->getX() - currentClip.w < x
+    && player->getY() + 100 > y && player->getY() - currentClip.h < y)
+    {
+        std::cout << "true";
+        collected = true;
+        setAnim(1, cnst::ANIM_END, 1);
+        Mix_PlayChannel(-1, chestSfx, 0);
+    }
+}
+
+
+void Chest::render(int offsetX, int offsetY, SDL_Renderer *renderer)
+{
+    SDL_Rect dest;
+    dest.x = x + offsetX;
+    dest.y = y + offsetY + 5*sin(SDL_GetTicks()/200.0f);
     dest.w = currentClip.w;
     dest.h = currentClip.h;
     SDL_RenderCopy(renderer, tex, &currentClip, &dest);

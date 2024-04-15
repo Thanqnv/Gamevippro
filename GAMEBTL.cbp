@@ -33,7 +33,15 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="cnst.h" />
+		<Unit filename="entity.cpp" />
+		<Unit filename="entity.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="map.cpp" />
+		<Unit filename="map.h">
+			<Option compilerVar="CC" />
+			<Option compile="1" />
+			<Option link="1" />
+		</Unit>
 		<Unit filename="media.cpp" />
 		<Unit filename="media.h" />
 		<Extensions />

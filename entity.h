@@ -35,6 +35,7 @@ public:
     virtual void updateGravity(float gravity);
     virtual void updateCollisions(Map *map);
     virtual void updateKeyDoor(Map *map);
+    virtual void updateChest(Map *map);
 
 protected:
     float x, y;             //position relative to world
@@ -148,5 +149,20 @@ public:
 private:
     bool collected;
     Mix_Chunk *keySfx;
+    Player *player;
+};
+
+//---------------------------------------- Chest ----------------------------------------
+class Chest : public AnimEntity
+{
+public:
+    Chest(int x, int y, SDL_Texture *tex, std::vector<std::vector<SDL_Point>> *clips, Mix_Chunk *chestSfx, Player *player);
+
+    void updateChest(Map *map) override;
+    void render(int offsetX, int offsetY, SDL_Renderer *renderer) override;
+
+private:
+    bool collected;
+    Mix_Chunk *chestSfx;
     Player *player;
 };
