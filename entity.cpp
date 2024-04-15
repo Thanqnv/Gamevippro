@@ -355,8 +355,8 @@ Chest::Chest(int x, int y, SDL_Texture *tex, std::vector<std::vector<SDL_Point>>
 
 void Chest::updateChest(Map *map)
 {
-    if (/*!collected
-    &&*/ player->getX() + 100 > x && player->getX() - currentClip.w < x
+    if (!collected
+    && player->getX() + 100 > x && player->getX() - currentClip.w < x
     && player->getY() + 100 > y && player->getY() - currentClip.h < y)
     {
         std::cout << "true";
