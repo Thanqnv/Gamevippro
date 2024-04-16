@@ -363,6 +363,7 @@ void Chest::updateChest(Map *map)
         collected = true;
         setAnim(1, cnst::ANIM_END, 1);
         Mix_PlayChannel(-1, chestSfx, 0);
+        
     }
 }
 
