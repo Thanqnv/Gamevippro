@@ -21,8 +21,11 @@
 	"entity.h"
 	"map.h"
 
-1713104481 source:d:\c++\gamebtl\entity.cpp
+1713376718 source:d:\c++\gamebtl\entity.cpp
 	"entity.h"
+	"question.h"
+	<SDL.h>
+	<SDL_image.h>
 
 1713173898 d:\c++\gamebtl\entity.h
 	<SDL.h>
@@ -34,9 +37,9 @@
 	"cnst.h"
 	"map.h"
 
-1712770294 d:\c++\gamebtl\cnst.h
+1713376753 d:\c++\gamebtl\cnst.h
 
-1713104516 d:\c++\gamebtl\map.h
+1713376793 d:\c++\gamebtl\map.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -54,4 +57,10 @@
 	<iostream>
 	<vector>
 	<cmath>
+
+1713376718 d:\c++\gamebtl\question.h
+	<SDL.h>
+	<SDL_image.h>
+	<string>
+	<SDL_ttf.h>
 

@@ -1,5 +1,9 @@
 #include "entity.h"
+#include "question.h"
+#include <SDL.h>
+#include <SDL_image.h>
 
+using namespace std;
 //---------------------------------------- Entity ----------------------------------------
 //any object with a position and an image
 Entity::Entity(int x, int y, SDL_Texture *tex, int w, int h, int imageNo)
@@ -363,7 +367,13 @@ void Chest::updateChest(Map *map)
         collected = true;
         setAnim(1, cnst::ANIM_END, 1);
         Mix_PlayChannel(-1, chestSfx, 0);
-        
+
+        SDL_Delay(1000);
+        SDL2ImageRenderer x(nullptr);
+        std ::string a = "res/gfx/question1.png";
+        x.question2(a);
+
+
     }
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 //constants used throughout the game
-namespace cnst
+using namespace cnst
 {
     constexpr int WIN_W = 1000;     //program window dimenstions
     constexpr int WIN_H = 800;
