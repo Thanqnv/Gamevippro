@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+#include <SDL_ttf.h>
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -9,7 +10,7 @@
 #include "media.h"
 #include "entity.h"
 #include "map.h"
-
+#include "question.h"
 
 int main(int argc, char* args[])
 {
@@ -18,6 +19,21 @@ int main(int argc, char* args[])
     if(!IMG_Init(IMG_INIT_PNG)) std::cout << "IMG failed: " << IMG_GetError() << std::endl;                                 //images
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) std::cout << "Sound failed: " << Mix_GetError() << std::endl; //sounds
 
+    // Khởi tạo SDL_ttf
+    if(TTF_Init() == -1) {
+        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        SDL_Quit();
+        return -1;
+    }
+
+    // Tải font
+    TTF_Font* font = TTF_OpenFont("BigShouldersText-Black.ttf", 24);
+    if (!font) {
+        std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        TTF_Quit();
+        SDL_Quit();
+        return -1;
+    }
     //create window and renderer
     SDL_Window *window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, cnst::WIN_W, cnst::WIN_H, SDL_WINDOW_SHOWN);
     if (window==NULL) std::cout << "Window failed: " << SDL_GetError() << std::endl;
@@ -54,6 +70,9 @@ int main(int argc, char* args[])
     //tutorial
     Entity tutorial(6 * cnst::TILE_SIZE, 26 * cnst::TILE_SIZE, media.tutorialTex, 450, 250, 0);
 
+    //chest
+    Chest chest1(3 * cnst::TILE_SIZE, 40 * cnst::TILE_SIZE, media.chest1Tex, &media.chestClips, media.chestSfx, &player);
+
     //entities in the game to be iteratively updated    (in render order)
     std::vector<Entity *> entities;
     entities.push_back(&tutorial);
@@ -64,6 +83,7 @@ int main(int argc, char* args[])
     entities.push_back(&dust1);
     entities.push_back(&dust2);
     entities.push_back(&player);
+    entities.push_back(&chest1);
 
     Mix_PlayMusic(media.bgMusic, -1); //play music
 
@@ -73,7 +93,12 @@ int main(int argc, char* args[])
     int prevFrameTicks;                     //duration of last frame
     int accumulator = 0;                    //time accumulated for decoupling frame rate and game loop
 
+    // Load texture từ file ảnh
+    SDL_Texture* questionTex = TextureManager::LoadTexture("res/gfx/question1.png", renderer);
+    Chest chestObject(3 * cnst::TILE_SIZE, 40 * cnst::TILE_SIZE, media.chest1Tex, &media.chestClips, media.chestSfx, &player);
+    Chest *chest = &chestObject; // Gán con trỏ chest bằng địa chỉ của chestObject
 
+    bool tmp = false;
     bool gameRunning = true;
     while(gameRunning)
     {
@@ -138,7 +163,50 @@ int main(int argc, char* args[])
                 e->updateGravity(0.5);
                 e->updateCollisions(&map);
                 e->updateKeyDoor(&map);
+                e->updateChest(&map);
                 e->updatePos();
+
+            }
+
+            if (chest->checkChecst(&map) && !tmp)
+            {
+                // Vẽ texture lên renderer
+                TextureManager::DrawTexture(questionTex, renderer, 250, 100, 500, 600);
+
+                // Update renderer
+                SDL_RenderPresent(renderer);
+                //SDL_Delay(3000);
+                SDL_DestroyTexture(questionTex);
+                tmp = true;
+
+                // Tạo texture từ văn bản
+                SDL_Color textColor = {0, 0, 255}; // Màu chữ (trắng)
+                int fontSize = 24; // Kích thước chữ
+                // Nhập xâu từ người dùng
+                std::string s;
+                std::cout << "Nhập xâu: ";
+                std::getline(std::cin, s);
+                // Tạo texture từ xâu vừa nhập
+                SDL_Texture* textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
+
+                // Kiểm tra nếu không thể tạo texture từ văn bản
+                if (!textTexture) {
+                    std::cerr << "Failed to render text to texture!" << std::endl;
+                    // Xử lý lỗi tại đây nếu cần thiết
+                } else {
+                    // Vẽ texture chữ lên renderer
+                    TextureManager::DrawTexture(textTexture, renderer, 250, 100, 500, 600);
+
+                    // Update renderer
+                    SDL_RenderPresent(renderer);
+
+                    // Chờ 3 giây
+                    SDL_Delay(10000);
+
+                    // Giải phóng texture chữ
+                    SDL_DestroyTexture(textTexture);
+                }
+
             }
 
             map.updateCamera(&player);          //update camera offsets and zones

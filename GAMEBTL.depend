@@ -58,9 +58,9 @@
 	<vector>
 	<cmath>
 
-1713376718 d:\c++\gamebtl\question.h
+1713461652 d:\c++\gamebtl\question.h
 	<SDL.h>
 	<SDL_image.h>
-	<string>
 	<SDL_ttf.h>
+	<iostream>
 
