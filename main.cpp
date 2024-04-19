@@ -19,6 +19,9 @@ int main(int argc, char* args[])
     if(!IMG_Init(IMG_INIT_PNG)) std::cout << "IMG failed: " << IMG_GetError() << std::endl;                                 //images
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) std::cout << "Sound failed: " << Mix_GetError() << std::endl; //sounds
 
+    // Lưu thời điểm ban đầu
+    Uint32 startTime = SDL_GetTicks();
+
     // Khởi tạo SDL_ttf
     if(TTF_Init() == -1) {
         std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
@@ -94,7 +97,7 @@ int main(int argc, char* args[])
     int accumulator = 0;                    //time accumulated for decoupling frame rate and game loop
 
     // Load texture từ file ảnh
-    SDL_Texture* questionTex = TextureManager::LoadTexture("res/gfx/question1.png", renderer);
+    SDL_Texture* questionTex1 = TextureManager::LoadTexture("res/gfx/question1.png", renderer);
     Chest chestObject(3 * cnst::TILE_SIZE, 40 * cnst::TILE_SIZE, media.chest1Tex, &media.chestClips, media.chestSfx, &player);
     Chest *chest = &chestObject; // Gán con trỏ chest bằng địa chỉ của chestObject
 
@@ -168,45 +171,84 @@ int main(int argc, char* args[])
 
             }
 
+
             if (chest->checkChecst(&map) && !tmp)
             {
                 // Vẽ texture lên renderer
-                TextureManager::DrawTexture(questionTex, renderer, 250, 100, 500, 600);
+                TextureManager::DrawTexture(questionTex1, renderer, 250, 100, 500, 600);
 
                 // Update renderer
                 SDL_RenderPresent(renderer);
-                //SDL_Delay(3000);
-                SDL_DestroyTexture(questionTex);
+
                 tmp = true;
 
-                // Tạo texture từ văn bản
-                SDL_Color textColor = {0, 0, 255}; // Màu chữ (trắng)
-                int fontSize = 24; // Kích thước chữ
-                // Nhập xâu từ người dùng
-                std::string s;
-                std::cout << "Nhập xâu: ";
-                std::getline(std::cin, s);
-                // Tạo texture từ xâu vừa nhập
-                SDL_Texture* textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
 
-                // Kiểm tra nếu không thể tạo texture từ văn bản
-                if (!textTexture) {
-                    std::cerr << "Failed to render text to texture!" << std::endl;
-                    // Xử lý lỗi tại đây nếu cần thiết
-                } else {
-                    // Vẽ texture chữ lên renderer
-                    TextureManager::DrawTexture(textTexture, renderer, 250, 100, 500, 600);
+                bool congratulation = false;
+                int guess = 5;
 
-                    // Update renderer
-                    SDL_RenderPresent(renderer);
+                while (!congratulation && guess > 0)
+                {
+                    // Tạo texture từ văn bản
+                    SDL_Color textColor = {0, 0, 0};
+                    int fontSize = 24; // Kích thước chữ
 
-                    // Chờ 3 giây
-                    SDL_Delay(10000);
+                    std::string answer = "university";
+                    // Nhập xâu từ người dùng
+                    std::string s;
+                    std::cout << "Nhập xâu: ";
+                    std::getline(std::cin, s);
+                    // Tạo texture từ xâu vừa nhập
+                    SDL_Texture* textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
+
+                    // Kiểm tra nếu không thể tạo texture từ văn bản
+                    if (!textTexture)
+                    {
+                        std::cerr << "Failed to render text to texture!" << std::endl;
+                        // Xử lý lỗi tại đây nếu cần thiết
+                    } else
+                    {
+                        // Vẽ texture chữ lên renderer
+                        TextureManager::DrawTexture(textTexture, renderer, 350, 400, 120, 100);
+
+                        // Update renderer
+                        SDL_RenderPresent(renderer);
+
+                        // Chờ 1 giây
+                        SDL_Delay(1000);
+
+                        if (answer == s)
+                        {
+                            textColor = {0, 128, 0};
+                            textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
+                            TextureManager::DrawTexture(textTexture, renderer, 350, 400, 120, 100);
+                            // Update renderer
+                            SDL_RenderPresent(renderer);
+                            Mix_PlayChannel(-1, media.correctSfx, 0);
+                            SDL_Delay(200);
+                            congratulation = true;
+                        }
+                        else
+                        {
+                            textColor = {255, 0, 0};
+                            textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
+                            TextureManager::DrawTexture(textTexture, renderer, 350, 400, 120, 100);
+                            // Update renderer
+                            SDL_RenderPresent(renderer);
+                            Mix_PlayChannel(-1, media.wrongSfx, 0);
+                            SDL_Delay(200);
+
+                        }
+
+                    }
 
                     // Giải phóng texture chữ
                     SDL_DestroyTexture(textTexture);
+                    guess--;
+                    TextureManager::DrawTexture(media.blockTex, renderer, 350, 400, 120, 100);
+                    SDL_RenderPresent(renderer);
                 }
-
+                SDL_DestroyTexture(questionTex1);
+                SDL_DestroyTexture(media.blockTex);
             }
 
             map.updateCamera(&player);          //update camera offsets and zones

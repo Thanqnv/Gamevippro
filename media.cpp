@@ -18,9 +18,9 @@ Media::Media(SDL_Renderer *renderer)
     tutorialTex = loadTexture("res/gfx/tutorial.png");
 
     chest1Tex = loadTexture("res/gfx/chest1.png");
+    questionTex = loadTexture("res/gfx/question1.png");
 
-    question1Tex = loadTexture("res/gfx/question1.png");
-
+    blockTex = loadTexture("res/gfx/block.png");
     //animation clips
     playerClips = {
         makeClips(0, 4, 70, 70),
@@ -52,6 +52,8 @@ Media::Media(SDL_Renderer *renderer)
     keySfx = loadSfx("res/wav/key.wav");
     doorSfx = loadSfx("res/wav/door.wav");
     chestSfx = loadSfx("res/wav/chest.wav");
+    wrongSfx = loadSfx("res/wav/wrong.wav");
+    correctSfx = loadSfx("res/wav/correct.wav");
 }
 
     //load png, return texture pointer

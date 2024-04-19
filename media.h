@@ -11,18 +11,18 @@ struct Media
 {
     //textures
         //active entities
-    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex;
+    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex, *chest1Tex, *questionTex, *blockTex;
         //map entities
     SDL_Texture *starTex, *brickFloorTex, *brickBackgroundTex, *windowTex, *tutorialTex;
 
     //animation clips
-    std::vector<std::vector<SDL_Point>> playerClips, dustClips, doorClips, keyClips;
+    std::vector<std::vector<SDL_Point>> playerClips, dustClips, doorClips, keyClips, chestClips;
 
     //sounds
         //music
     Mix_Music *bgMusic;
         //sfx
-    Mix_Chunk *jumpSfx, *thudSfx, *dashSfx, *keySfx, *doorSfx;
+    Mix_Chunk *jumpSfx, *thudSfx, *dashSfx, *keySfx, *doorSfx, *chestSfx, *wrongSfx, *correctSfx;
 
     SDL_Renderer *renderer;
 
@@ -36,4 +36,5 @@ struct Media
 
     //make a vector of points representing the top left corner of each animation frame
     std::vector<SDL_Point> makeClips(int animNo, int frames, int w, int h);
+
 };
