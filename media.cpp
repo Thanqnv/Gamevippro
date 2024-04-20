@@ -18,6 +18,9 @@ Media::Media(SDL_Renderer *renderer)
     tutorialTex = loadTexture("res/gfx/tutorial.png");
 
     chest1Tex = loadTexture("res/gfx/chest1.png");
+    chest2Tex = loadTexture("res/gfx/chest2.png");
+    chest3Tex = loadTexture("res/gfx/chest3.png");
+    chest4Tex = loadTexture("res/gfx/chest4.png");
     questionTex = loadTexture("res/gfx/question1.png");
 
     blockTex = loadTexture("res/gfx/block.png");
@@ -43,6 +46,7 @@ Media::Media(SDL_Renderer *renderer)
     chestClips = {
         makeClips(0, 1, 100, 100),
         makeClips(1, 1, 100, 100)};
+
 
     //sound
     bgMusic = loadMusic("res/wav/music.wav");

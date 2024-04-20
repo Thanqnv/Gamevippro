@@ -11,7 +11,7 @@ struct Media
 {
     //textures
         //active entities
-    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex, *chest1Tex, *questionTex, *blockTex;
+    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex, *chest1Tex, *chest2Tex, *chest3Tex, *chest4Tex, *questionTex, *blockTex;
         //map entities
     SDL_Texture *starTex, *brickFloorTex, *brickBackgroundTex, *windowTex, *tutorialTex;
 

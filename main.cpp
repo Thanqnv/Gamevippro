@@ -75,6 +75,10 @@ int main(int argc, char* args[])
 
     //chest
     Chest chest1(3 * cnst::TILE_SIZE, 40 * cnst::TILE_SIZE, media.chest1Tex, &media.chestClips, media.chestSfx, &player);
+    Chest chest2(23 * cnst::TILE_SIZE, 29 * cnst::TILE_SIZE, media.chest2Tex, &media.chestClips, media.chestSfx, &player);
+    Chest chest3(27 * cnst::TILE_SIZE, 3 * cnst::TILE_SIZE, media.chest3Tex, &media.chestClips, media.chestSfx, &player);
+    Chest chest4(27 * cnst::TILE_SIZE, 21 * cnst::TILE_SIZE, media.chest4Tex, &media.chestClips, media.chestSfx, &player);
+
 
     //entities in the game to be iteratively updated    (in render order)
     std::vector<Entity *> entities;
@@ -87,6 +91,9 @@ int main(int argc, char* args[])
     entities.push_back(&dust2);
     entities.push_back(&player);
     entities.push_back(&chest1);
+    entities.push_back(&chest2);
+    entities.push_back(&chest3);
+    entities.push_back(&chest4);
 
     Mix_PlayMusic(media.bgMusic, -1); //play music
 
