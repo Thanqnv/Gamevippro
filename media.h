@@ -11,7 +11,7 @@ struct Media
 {
     //textures
         //active entities
-    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex, *chest1Tex, *chest2Tex, *chest3Tex, *chest4Tex, *questionTex, *blockTex;
+    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex, *chest1Tex, *chest2Tex, *chest3Tex, *chest4Tex, *questionTex, *blockTex, *menuTex;
         //map entities
     SDL_Texture *starTex, *brickFloorTex, *brickBackgroundTex, *windowTex, *tutorialTex;
 
@@ -20,7 +20,7 @@ struct Media
 
     //sounds
         //music
-    Mix_Music *bgMusic;
+    Mix_Music *bgMusic, *bgMenu;
         //sfx
     Mix_Chunk *jumpSfx, *thudSfx, *dashSfx, *keySfx, *doorSfx, *chestSfx, *wrongSfx, *correctSfx;
 

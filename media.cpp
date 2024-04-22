@@ -24,6 +24,8 @@ Media::Media(SDL_Renderer *renderer)
     questionTex = loadTexture("res/gfx/question1.png");
 
     blockTex = loadTexture("res/gfx/block.png");
+
+    menuTex = loadTexture("res/gfx/menu.png");
     //animation clips
     playerClips = {
         makeClips(0, 4, 70, 70),
@@ -50,6 +52,7 @@ Media::Media(SDL_Renderer *renderer)
 
     //sound
     bgMusic = loadMusic("res/wav/music.wav");
+    bgMenu = loadMusic("res/wav/menu.wav");
     jumpSfx = loadSfx("res/wav/jump.wav");
     thudSfx = loadSfx("res/wav/thud.wav");
     dashSfx = loadSfx("res/wav/dash.wav");
