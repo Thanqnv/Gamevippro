@@ -12,44 +12,39 @@
 #include "map.h"
 #include "question.h"
 
+
 int main(int argc, char* args[])
 {
     //init systems
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) > 0 ) std::cout << "SDL failed: " << SDL_GetError() << std::endl;          //SDL
-    if(!IMG_Init(IMG_INIT_PNG)) std::cout << "IMG failed: " << IMG_GetError() << std::endl;                                 //images
-    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) std::cout << "Sound failed: " << Mix_GetError() << std::endl; //sounds
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) > 0 ) std::cout << "SDL failed: " << SDL_GetError() << std::endl;
+    if(!IMG_Init(IMG_INIT_PNG)) std::cout << "IMG failed: " << IMG_GetError() << std::endl;
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) std::cout << "Sound failed: " << Mix_GetError() << std::endl;
 
-    // Lưu thời điểm ban đầu
     Uint32 startTime = SDL_GetTicks();
 
-    // Khởi tạo SDL_ttf
     if(TTF_Init() == -1) {
         std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
         SDL_Quit();
         return -1;
     }
 
-    // Tải font
-    TTF_Font* font = TTF_OpenFont("BigShouldersText-Black.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("BigShouldersText-Black.ttf", 20);
     if (!font) {
         std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
         TTF_Quit();
         SDL_Quit();
         return -1;
     }
-    //create window and renderer
     SDL_Window *window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, cnst::WIN_W, cnst::WIN_H, SDL_WINDOW_SHOWN);
     if (window==NULL) std::cout << "Window failed: " << SDL_GetError() << std::endl;
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    //get monitor refresh rate
     SDL_DisplayMode mode;
     SDL_GetDisplayMode(SDL_GetWindowDisplayIndex(window), 0, &mode);
     const float refreshRate = mode.refresh_rate;
 
-    Media media(renderer);    //media manager/storage
+    Media media(renderer);
 
-    // Hiển thị cửa sổ
     SDL_RenderPresent(renderer);
 
     int offsetX, offsetY, targetOffsetX, targetOffsetY;
@@ -75,9 +70,12 @@ int main(int argc, char* args[])
 
     //chest
     Chest chest1(3 * cnst::TILE_SIZE, 40 * cnst::TILE_SIZE, media.chest1Tex, &media.chestClips, media.chestSfx, &player);
-    Chest chest2(23 * cnst::TILE_SIZE, 29 * cnst::TILE_SIZE, media.chest2Tex, &media.chestClips, media.chestSfx, &player);
+    Chest chest2(23 * cnst::TILE_SIZE, 30 * cnst::TILE_SIZE, media.chest2Tex, &media.chestClips, media.chestSfx, &player);
     Chest chest3(27 * cnst::TILE_SIZE, 3 * cnst::TILE_SIZE, media.chest3Tex, &media.chestClips, media.chestSfx, &player);
     Chest chest4(27 * cnst::TILE_SIZE, 21 * cnst::TILE_SIZE, media.chest4Tex, &media.chestClips, media.chestSfx, &player);
+
+    //quai
+    Quai quai(25 * cnst::TILE_SIZE, 3 * cnst::TILE_SIZE, media.quaiTex, &media.quaiClips, &player);
 
 
     //entities in the game to be iteratively updated    (in render order)
@@ -94,36 +92,80 @@ int main(int argc, char* args[])
     entities.push_back(&chest2);
     entities.push_back(&chest3);
     entities.push_back(&chest4);
-
-    Mix_PlayMusic(media.bgMusic, -1); //play music
+    entities.push_back(&quai);
 
     SDL_Event event;
-    int startTicks;                         //time at start of frame
-    int prevStartTicks = SDL_GetTicks();    //time since previous start of frame
-    int prevFrameTicks;                     //duration of last frame
-    int accumulator = 0;                    //time accumulated for decoupling frame rate and game loop
+    int startTicks;
+    int prevStartTicks = SDL_GetTicks();
+    int prevFrameTicks;
+    int accumulator = 0;
 
-    // Load texture từ file ảnh
-    SDL_Texture* questionTex1 = TextureManager::LoadTexture("res/gfx/question1.png", renderer);
-    Chest chestObject(3 * cnst::TILE_SIZE, 40 * cnst::TILE_SIZE, media.chest1Tex, &media.chestClips, media.chestSfx, &player);
-    Chest *chest = &chestObject; // Gán con trỏ chest bằng địa chỉ của chestObject
+    Mix_PlayMusic(media.bgMenu, -1);
+    bool play = false;
+    while (!play)
+    {
 
-    bool tmp = false;
+        TextureManager::DrawTexture(media.menuTex, renderer, 0, 0, cnst::WIN_W, cnst::WIN_H);
+
+        SDL_RenderPresent(renderer);
+
+        if (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                play = true;
+            }
+            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int mX = event.button.x;
+                int mY = event.button.y;
+                if (mX >= 370 && mX <= 660 && mY >= 650 && mY <= 750)
+                {
+                    std::cout << mX << " " << mY;
+                    SDL_DestroyTexture(media.menuTex);
+                    Mix_FreeMusic(media.bgMenu);
+                    media.bgMenu = nullptr;
+                    play = true;
+                }
+            }
+        }
+    }
+
+    Mix_PlayMusic(media.bgMusic, -1);
+    SDL_Rect dest;
+
+    dest.x = 250;
+    dest.y = 100;
+    dest.w = 500;
+    dest.h = 600;
+
+    SDL_Texture* tempTexture = nullptr;
+
+    int k = 1, tmp = 0;
+    std::string s = "";
+    Uint32 x;
+    SDL_Color textColor = {0, 0, 0};
+
+    SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font, s.c_str(), textColor);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Rect rect = {300, 500, (s.length() * 20) - 6 - (2 * s.length()), 50};
+    int guess = 3;
+    std::string answer = "16761";
+    bool win = false;
     bool gameRunning = true;
     while(gameRunning)
     {
-
         startTicks = SDL_GetTicks();
         prevFrameTicks = startTicks - prevStartTicks;
         prevStartTicks = startTicks;
-        accumulator += prevFrameTicks;          //frame time is added to the accumulator
-        while(accumulator >= cnst::TIME_STEP)   //if there is enough time accumulated to advance the simulation:
+        accumulator += prevFrameTicks;
+        while(accumulator >= cnst::TIME_STEP)
         {
-            while(SDL_PollEvent(&event))        //take each event from the queue
+            if (SDL_PollEvent(&event))
             {
                 if(event.type == SDL_QUIT) gameRunning = false;
 
-                //process pressed keys (registered once)
+
                 if(event.type == SDL_KEYDOWN && event.key.repeat == 0)
                 {
                     switch(event.key.keysym.sym)
@@ -133,41 +175,40 @@ int main(int argc, char* args[])
                         break;
                     case SDLK_LSHIFT:
                         player.dash();
+                        break;
                     }
                 }
             }
 
-            //process held keys (registered continuously)
-            const Uint8 *keyState = SDL_GetKeyboardState(NULL);         //current state of keyboard
+            const Uint8 *keyState = SDL_GetKeyboardState(NULL);
 
-            if(keyState[SDL_SCANCODE_LEFT])                             //if left is being held
+            if(keyState[SDL_SCANCODE_LEFT])
             {
                 player.moveLeft();
             }
-            if(keyState[SDL_SCANCODE_RIGHT])                            //if right is being held
+            if(keyState[SDL_SCANCODE_RIGHT])
             {
                 player.moveRight();
             }
-            if(keyState[SDL_SCANCODE_SPACE] && player.onGround)         //if space is being held and player is on ground
+            if(keyState[SDL_SCANCODE_SPACE] && player.onGround)
             {
                 player.jump();
             }
 
-            player.drag(0.9);                                                   //set default drag force
-            if(!keyState[SDL_SCANCODE_LEFT] && !keyState[SDL_SCANCODE_RIGHT])   //if not moving left or right
+            player.drag(0.9);
+            if(!keyState[SDL_SCANCODE_LEFT] && !keyState[SDL_SCANCODE_RIGHT])
             {
-                if (player.onGround) player.drag(0.7);                          //extra drag when standing on floor
-                if (player.getAnim() != 0 && player.getAnim() != 3) player.setAnim(0, cnst::ANIM_REPEAT, 80);   //idle animation when not moving
+                if (player.onGround) player.drag(0.7);
+                if (player.getAnim() != 0 && player.getAnim() != 3) player.setAnim(0, cnst::ANIM_REPEAT, 80);
             }
 
-            //update entity physics
 
-            for (auto i = entities.end() - 1; i >= entities.begin(); i--)   //iterate through entities (in reverse, so that deleting an entity will not skip the next)
+            for (auto i = entities.end() - 1; i >= entities.begin(); i--)
             {
                 Entity *e = *i;
                 if (e->deleted)
                 {
-                    entities.erase(i);  //remove from entitiy list
+                    entities.erase(i);
                     continue;
                 }
                 e->updateGravity(0.5);
@@ -175,98 +216,220 @@ int main(int argc, char* args[])
                 e->updateKeyDoor(&map);
                 e->updateChest(&map);
                 e->updatePos();
-
             }
 
 
-            if (chest->checkChecst(&map) && !tmp)
+            if (chest1.checkChest(&map))
             {
-                // Vẽ texture lên renderer
-                TextureManager::DrawTexture(questionTex1, renderer, 250, 100, 500, 600);
+                Chest sao(3 * cnst::TILE_SIZE, 38 * cnst::TILE_SIZE, media.saoTex, &media.chestClips, media.chestSfx, &player);
+                entities.push_back(&sao);
+            }
 
-                // Update renderer
+            if (chest2.checkChest(&map))
+            {
+                Chest sao2(23 * cnst::TILE_SIZE, 28 * cnst::TILE_SIZE, media.sao2Tex, &media.chestClips, media.chestSfx, &player);
+                entities.push_back(&sao2);
+            }
+
+            if (chest3.checkChest(&map))
+            {
+                Chest sao2(27 * cnst::TILE_SIZE, 1 * cnst::TILE_SIZE, media.sao3Tex, &media.chestClips, media.chestSfx, &player);
+                entities.push_back(&sao2);
+            }
+
+            if (chest4.checkChest(&map) && guess >= 0)
+            {
+
+                tempTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 0, 0);
+                SDL_SetRenderTarget(renderer, tempTexture);
+                SDL_RenderCopy(renderer, media.questionTex, NULL, &dest);
+                SDL_SetRenderTarget(renderer, NULL);
+
+                SDL_RenderCopy(renderer, tempTexture, NULL, &dest);
                 SDL_RenderPresent(renderer);
 
-                tmp = true;
-
-
-                bool congratulation = false;
-                int guess = 5;
-
-                while (!congratulation && guess > 0)
+                int length = 1;
+                if (guess > 0)
                 {
-                    // Tạo texture từ văn bản
-                    SDL_Color textColor = {0, 0, 0};
-                    int fontSize = 24; // Kích thước chữ
-
-                    std::string answer = "university";
-                    // Nhập xâu từ người dùng
-                    std::string s;
-                    std::cout << "Nhập xâu: ";
-                    std::getline(std::cin, s);
-                    // Tạo texture từ xâu vừa nhập
-                    SDL_Texture* textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
-
-                    // Kiểm tra nếu không thể tạo texture từ văn bản
-                    if (!textTexture)
+                    if (s.length() == 5)
                     {
-                        std::cerr << "Failed to render text to texture!" << std::endl;
-                        // Xử lý lỗi tại đây nếu cần thiết
-                    } else
+                        s = "";
+                    }
+                    while (s.length() < 5)
                     {
-                        // Vẽ texture chữ lên renderer
-                        TextureManager::DrawTexture(textTexture, renderer, 350, 400, 120, 100);
+                    if (SDL_PollEvent(&event))
+                    {
+                        if(event.type == SDL_QUIT) gameRunning = false;
 
-                        // Update renderer
+                        if(event.type == SDL_KEYDOWN && event.key.repeat == 0)
+                        {
+
+                            switch(event.key.keysym.sym)
+                            {
+                            case SDLK_1:
+                                s = s + "1";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_2:
+                                s = s + "2";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_3:
+                                s = s + "3";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_4:
+                                s = s + "4";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_5:
+                                s = s + "5";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_6:
+                                s = s + "6";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_7:
+                                s = s + "7";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_8:
+                                s = s + "8";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_9:
+                                s = s + "9";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_0:
+                                s = s + "0";
+                                std::cout << s << " ";
+                                break;
+                            case SDLK_RETURN:
+                                break;
+                            }
+                    }
+                    }
+                    if (s.length() < 5)
+                    {
+
+                        textColor = {0, 0, 0};
+                        textSurface = TTF_RenderUTF8_Blended(font, s.c_str(), textColor);
+
+                        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+                        rect = {300, 500, (s.length() * 20) - 5 - (2 * s.length()), 50};
+
+                        SDL_RenderCopy(renderer, textTexture, NULL, &rect);
                         SDL_RenderPresent(renderer);
-
-                        // Chờ 1 giây
-                        SDL_Delay(1000);
-
-                        if (answer == s)
-                        {
-                            textColor = {0, 128, 0};
-                            textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
-                            TextureManager::DrawTexture(textTexture, renderer, 350, 400, 120, 100);
-                            // Update renderer
-                            SDL_RenderPresent(renderer);
-                            Mix_PlayChannel(-1, media.correctSfx, 0);
-                            SDL_Delay(200);
-                            congratulation = true;
-                        }
-                        else
-                        {
-                            textColor = {255, 0, 0};
-                            textTexture = TextureManager::RenderText(s, "BigShouldersText-Black.ttf", textColor, fontSize, renderer);
-                            TextureManager::DrawTexture(textTexture, renderer, 350, 400, 120, 100);
-                            // Update renderer
-                            SDL_RenderPresent(renderer);
-                            Mix_PlayChannel(-1, media.wrongSfx, 0);
-                            SDL_Delay(200);
-
-                        }
-
+                        length++;
                     }
 
-                    // Giải phóng texture chữ
-                    SDL_DestroyTexture(textTexture);
-                    guess--;
-                    TextureManager::DrawTexture(media.blockTex, renderer, 350, 400, 120, 100);
-                    SDL_RenderPresent(renderer);
+                    }
+                    if (s == answer && s.length() == 5)
+                    {
+                        textColor = {0, 128, 0};
+
+                        textSurface = TTF_RenderUTF8_Blended(font, s.c_str(), textColor);
+                        if (!textSurface) {
+                            std::cout << "not load textSurface!";
+                        }
+
+                        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+                        if (!textTexture) {
+                            std::cout << "not load textTexture!";
+                        }
+
+                        SDL_FreeSurface(textSurface);
+
+                        rect = {300, 500, (s.length() * 20) - (2 * s.length()), 50};
+
+                        SDL_RenderCopy(renderer, textTexture, NULL, &rect);
+                        SDL_RenderPresent(renderer);
+                        Mix_PlayChannel(-1, media.correctSfx, 0);
+                        TextureManager::DrawTexture(media.youwinTex, renderer, 250, 100, 500, 600);
+                        SDL_RenderPresent(renderer);
+                        SDL_Delay(700);
+                        SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        gameRunning = false;
+                        std::cout << gameRunning;
+                    }
+                    if (s != answer && s.length() == 5)
+                    {
+                        textColor = {255, 0, 0};
+
+                        textSurface = TTF_RenderUTF8_Blended(font, s.c_str(), textColor);
+                        if (!textSurface) {
+                            std::cout << "not load textSurface!";
+                        }
+
+                        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+                        if (!textTexture) {
+                            std::cout << "not load textTexture!";
+                        }
+
+                        SDL_FreeSurface(textSurface);
+
+                        rect = {300, 500, (s.length() * 20) - (2 * s.length()), 50};
+                        SDL_RenderCopy(renderer, textTexture, NULL, &rect);
+                        SDL_RenderPresent(renderer);
+                        Mix_PlayChannel(-1, media.wrongSfx, 0);
+                        SDL_Delay(300);
+                        guess --;
+                    }
+                    if (guess == 0)
+                    {
+                        Uint32 x = SDL_GetTicks();
+                        TextureManager::DrawTexture(media.gameoverTex, renderer, 250, 100, 500, 600);
+
+                        SDL_RenderPresent(renderer);
+                        SDL_Delay(700);
+                        SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        gameRunning = false;
+                        std::cout << gameRunning;
+                    }
                 }
-                SDL_DestroyTexture(questionTex1);
-                SDL_DestroyTexture(media.blockTex);
+
             }
 
-            map.updateCamera(&player);          //update camera offsets and zones
+            if (k <= 200 && tmp == 0)
+            {
+                quai.setPos((25 * cnst::TILE_SIZE) + k, 3 * cnst::TILE_SIZE);
+                k++;
+                if (k == 200) tmp = 1;
+            }
+            else
+            {
+                quai.setPos((25 * cnst::TILE_SIZE) + k, 3 * cnst::TILE_SIZE);
+                k--;
+                if (k == 1) tmp = 0;
+            }
 
-            accumulator -= cnst::TIME_STEP;     //remove simulated time from the accumulator
+            if (quai.checkQuai(&map))
+            {
+                Uint32 x = SDL_GetTicks();
+                TextureManager::DrawTexture(media.gameoverTex, renderer, 250, 100, 500, 600);
+
+                while (SDL_GetTicks() - x < 3000)
+                {
+                    SDL_RenderPresent(renderer);
+
+                }
+                SDL_DestroyTexture(media.gameoverTex);
+                gameRunning = false;
+
+            }
+            map.updateCamera(&player);
+
+            accumulator -= cnst::TIME_STEP;
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 50, 255);
-        SDL_RenderClear(renderer);              //clear screen with dark blue
+        SDL_RenderClear(renderer);
 
-        //render entities
         map.drawParralax(renderer);
         map.drawMap(renderer);
         for (Entity *e : entities)
@@ -275,19 +438,19 @@ int main(int argc, char* args[])
             e->render(-offsetX, -offsetY, renderer);
         }
 
-        SDL_RenderPresent(renderer);     //present rendered image to screen
+        SDL_RenderPresent(renderer);
 
-        //delay loop to match refresh rate
-        int frameTicks = SDL_GetTicks() - startTicks;   //ticks since start of frame
-        if(frameTicks < 1000/refreshRate)               //if frame was too quick
+        int frameTicks = SDL_GetTicks() - startTicks;
+        if(frameTicks < 1000/refreshRate)
         {
-            SDL_Delay(1000/refreshRate - frameTicks);   //delay
+            SDL_Delay(1000/refreshRate - frameTicks);
         }
 
     }
 
-    SDL_DestroyWindow(window);   //destroy window
-    SDL_Quit();                 //close SDL
+
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     return 0;
 }

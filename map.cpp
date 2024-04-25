@@ -17,7 +17,7 @@ Map::Map(Media *media, int *offsetX, int *offsetY, int *targetOffsetX, int *targ
     {1,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,1,1,1,1,2,2,2,0,0,0,2,2,2,2,2,2,2,2,2,0,0,0,2,1},
     {1,2,2,1,1,2,2,2,2,2,1,2,1,1,1,2,1,1,1,1,2,2,2,0,0,0,2,2,1,1,2,2,2,2,2,0,0,0,2,1},
     {1,2,2,1,1,2,2,2,2,2,1,2,1,2,2,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
-    {1,2,2,2,2,2,2,2,2,2,1,2,1,2,1,2,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
+    {1,2,2,2,2,2,2,2,2,2,1,2,1,2,2,2,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
     {1,1,1,2,2,2,1,1,1,2,1,2,1,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,1},
     {1,1,1,2,2,2,2,2,2,2,1,2,1,1,1,1,1,1,2,2,2,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,1},
     {1,2,2,2,2,2,2,2,2,2,1,2,1,1,1,1,1,1,2,2,2,2,2,1,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1},
@@ -62,7 +62,7 @@ Map::Map(Media *media, int *offsetX, int *offsetY, int *targetOffsetX, int *targ
 
 
 }, cameraZones{
-    { {0, 0, 2000, 1200}, {1500, 400, 500, 400} },          //first rect is camera zone, all following rects are camera triggers for that zone
+    { {0, 0, 2000, 1200}, {1500, 400, 500, 400} },
     { {1000, 400, 1000, 1600}, {1500, 800, 500, 1200} },
     { {1000, 1200, 1000, 800}, {1000, 1200, 500, 800} },
     { {0, 1200, 1000, 1600}, {0, 1200, 1000, 1200} },
@@ -91,37 +91,37 @@ void Map::setTile(int x, int y, int tile)
 void Map::updateCamera(Player *player)
 {
     //check if player is in camera trigger and update camera zone
-    int centrePlayerX = player->getX() + cnst::TILE_SIZE/2.0f;          //coordinates of centre of player
+    int centrePlayerX = player->getX() + cnst::TILE_SIZE/2.0f;
     int centrePlayerY = player->getY() + cnst::TILE_SIZE/2.0f;
-    for (int zone = 0; zone < cameraZones.size(); zone++)               //for each camera zone
+    for (int zone = 0; zone < cameraZones.size(); zone++)
     {
-        for (int trig = 1; trig < cameraZones.at(zone).size(); trig++)  //for each trigger for that zone
+        for (int trig = 1; trig < cameraZones.at(zone).size(); trig++)
         {
             if (centrePlayerX >= cameraZones.at(zone).at(trig).x && centrePlayerX <= cameraZones.at(zone).at(trig).x + cameraZones.at(zone).at(trig).w
             && centrePlayerY >= cameraZones.at(zone).at(trig).y && centrePlayerY <= cameraZones.at(zone).at(trig).y + cameraZones.at(zone).at(trig).h)
-            //if player position is inside zone
+
             {
-                currentZone = cameraZones.at(zone).at(0);   //set corresponding room
+                currentZone = cameraZones.at(zone).at(0);
             }
         }
     }
 
     //update camera position
-    *targetOffsetX = player->getX() - cnst::WIN_W/2 + cnst::TILE_SIZE/2; //camera target is set so that player is centred on screen
+    *targetOffsetX = player->getX() - cnst::WIN_W/2 + cnst::TILE_SIZE/2;
     *targetOffsetY = player->getY() - cnst::WIN_H/2 + cnst::TILE_SIZE/2;
 
-    if (*targetOffsetX < currentZone.x) *targetOffsetX = currentZone.x;   //clamp offset at borders so camera stops at the side of a room
+    if (*targetOffsetX < currentZone.x) *targetOffsetX = currentZone.x;
     if (*targetOffsetY < currentZone.y) *targetOffsetY = currentZone.y;
     if (*targetOffsetX > currentZone.x + currentZone.w - cnst::WIN_W) *targetOffsetX = currentZone.x + currentZone.w - cnst::WIN_W;
     if (*targetOffsetY > currentZone.y + currentZone.h - cnst::WIN_H) *targetOffsetY = currentZone.y + currentZone.h - cnst::WIN_H;
 
     //smooth camera movement by approaching target with geometric series
-    const float ratio = 0.08;                               //ratio used to determine the speed of the smooth camera movement
-    int distanceX = *targetOffsetX - *offsetX;              //distance camera is from target
+    const float ratio = 0.08;
+    int distanceX = *targetOffsetX - *offsetX;
     int distanceY = *targetOffsetY - *offsetY;
-    if (distanceX > 1) *offsetX += distanceX * ratio + 1;      //move camera by distance*ratio, plus at least one pixel
+    if (distanceX > 1) *offsetX += distanceX * ratio + 1;
     else if (distanceX < -1) *offsetX += distanceX * ratio - 1;
-    else *offsetX = *targetOffsetX;                               //truncate small distances
+    else *offsetX = *targetOffsetX;
 
     if (distanceY > 1) *offsetY += distanceY * ratio + 1;
     else if (distanceY < -1) *offsetY += distanceY * ratio - 1;
@@ -129,9 +129,9 @@ void Map::updateCamera(Player *player)
 
     if (cameraShake)
     {
-        cameraShake *= 0.95;                                //decrease shake amplitude
-        *offsetX += sin(SDL_GetTicks()/10) * cameraShake;    //sin(time) * amplitude
-        if (abs(cameraShake) < 1.0f) cameraShake = 0;       //truncate small values
+        cameraShake *= 0.95;
+        *offsetX += sin(SDL_GetTicks()/10) * cameraShake;
+        if (abs(cameraShake) < 1.0f) cameraShake = 0;
     }
 }
 
@@ -139,10 +139,10 @@ void Map::shakeCamera(float cameraShake) { this-> cameraShake = cameraShake; }
 
 void Map::drawMap(SDL_Renderer *renderer)
 {
-    int tileOffsetX = *offsetX % cnst::TILE_SIZE;   //offset the position of the tiles so they scroll smoothly
+    int tileOffsetX = *offsetX % cnst::TILE_SIZE;
     int tileOffsetY = *offsetY % cnst::TILE_SIZE;
 
-    for (int y = -5; y <= cnst::WIN_H/cnst::TILE_SIZE + 10; y++) //loop through visible tiles, plus an off-screen margin of 5 tiles
+    for (int y = -5; y <= cnst::WIN_H/cnst::TILE_SIZE + 10; y++)
     {
         for (int x = -5; x <= cnst::WIN_W/cnst::TILE_SIZE + 10; x++)
         {
@@ -161,26 +161,19 @@ void Map::drawMap(SDL_Renderer *renderer)
 
                 switch (tileValue)
                 {
-                case 1: //solid bricks
-                case 2: //background bricks
+                case 1:
+                case 2:
                 {
                     Entity tile(x * cnst::TILE_SIZE, y * cnst::TILE_SIZE, mapTextures.at(tileValue), cnst::TILE_SIZE, cnst::TILE_SIZE, brickPattern);
                     tile.render(-tileOffsetX, -tileOffsetY, renderer);
                 } //scope closed to clear tile entities after they have been rendered
                 break;
-                case 3: //window
+                case 3:
                 {
                     Entity windowframe(x * cnst::TILE_SIZE, y * cnst::TILE_SIZE, mapTextures.at(tileValue), 150, 250, 0);
                     windowframe.render(-tileOffsetX, -tileOffsetY, renderer); //render tile with offset applied
                 }
                 break;
-                case 4: //chest1
-                {
-                    Entity tile(x * cnst::TILE_SIZE, y * cnst::TILE_SIZE, mapTextures.at(tileValue), cnst::TILE_SIZE, cnst::TILE_SIZE, brickPattern);
-                    tile.render(-tileOffsetX, -tileOffsetY, renderer);
-                }
-                break;
-
                 }
             }
         }

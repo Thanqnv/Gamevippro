@@ -36,11 +36,13 @@ public:
     virtual void updateCollisions(Map *map);
     virtual void updateKeyDoor(Map *map);
     virtual void updateChest(Map *map);
+    virtual bool checkChest(Map *map);
+    virtual bool checkQuai(Map *map);
 
 protected:
-    float x, y;             //position relative to world
-    SDL_Texture *tex;       //pointer to texture
-    SDL_Rect currentClip;   //clipping area of texture to be rendered
+    float x, y;
+    SDL_Texture *tex;
+    SDL_Rect currentClip;
 };
 
 //---------------------------------------- AnimEntity ----------------------------------------
@@ -59,8 +61,8 @@ public:
     int getAnim();
 
 protected:
-    std::vector<std::vector<SDL_Point>> *clips;     //clipping areas of aniamtion frames on texture sheet
-    int animNo, frameNo, animDelay, animStart, animType;    //current frame, delay between frames in ms, time that animation started, looping behaviour
+    std::vector<std::vector<SDL_Point>> *clips;
+    int animNo, frameNo, animDelay, animStart, animType;
 };
 
 //---------------------------------------- ActiveEntity ----------------------------------------
@@ -118,9 +120,9 @@ public:
     void updateCollisions(Map *map) override;
 
 private:
-    int dashTime, stunTime, keys;           //time when dash/stun cooldown will be over, and number of keys player has
-    Mix_Chunk *jumpSfx, *dashSfx, *thudSfx; //player-specific sfx
-    AnimEntity *dust1, *dust2;              //dust clouds left behind by player
+    int dashTime, stunTime, keys;
+    Mix_Chunk *jumpSfx, *dashSfx, *thudSfx;
+    AnimEntity *dust1, *dust2;
 };
 
 //---------------------------------------- Door ----------------------------------------
@@ -159,10 +161,25 @@ public:
     Chest(int x, int y, SDL_Texture *tex, std::vector<std::vector<SDL_Point>> *clips, Mix_Chunk *chestSfx, Player *player);
 
     void updateChest(Map *map) override;
+    bool checkChest(Map *map) override;
     void render(int offsetX, int offsetY, SDL_Renderer *renderer) override;
 
 private:
     bool collected;
     Mix_Chunk *chestSfx;
     Player *player;
+};
+
+//----------------------------------------- Quai --------------------------------------------
+class Quai : public AnimEntity
+{
+public:
+    Quai(int x, int y, SDL_Texture *tex, std::vector<std::vector<SDL_Point>> *clips, Player *player);
+
+    bool checkQuai(Map *map) override;
+    void render(int offsetX, int offsetY, SDL_Renderer *renderer) override;
+
+private:
+    Player *player;
+
 };

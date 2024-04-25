@@ -11,12 +11,12 @@ struct Media
 {
     //textures
         //active entities
-    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex, *chest1Tex, *chest2Tex, *chest3Tex, *chest4Tex, *questionTex, *blockTex, *menuTex;
+    SDL_Texture *playerTex, *dustTex, *doorTex, *keyTex, *chest1Tex, *chest2Tex, *chest3Tex, *chest4Tex, *questionTex, *blockTex, *menuTex, *saoTex, *sao2Tex, *sao3Tex, *quaiTex, *gameoverTex, *youwinTex;
         //map entities
     SDL_Texture *starTex, *brickFloorTex, *brickBackgroundTex, *windowTex, *tutorialTex;
 
     //animation clips
-    std::vector<std::vector<SDL_Point>> playerClips, dustClips, doorClips, keyClips, chestClips;
+    std::vector<std::vector<SDL_Point>> playerClips, dustClips, doorClips, keyClips, chestClips, quaiClips;
 
     //sounds
         //music

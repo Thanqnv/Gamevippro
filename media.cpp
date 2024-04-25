@@ -22,10 +22,14 @@ Media::Media(SDL_Renderer *renderer)
     chest3Tex = loadTexture("res/gfx/chest3.png");
     chest4Tex = loadTexture("res/gfx/chest4.png");
     questionTex = loadTexture("res/gfx/question1.png");
-
     blockTex = loadTexture("res/gfx/block.png");
-
     menuTex = loadTexture("res/gfx/menu.png");
+    saoTex = loadTexture("res/gfx/sao.png");
+    sao2Tex = loadTexture("res/gfx/sao2.png");
+    sao3Tex = loadTexture("res/gfx/sao3.png");
+    quaiTex = loadTexture("res/gfx/quai.png");
+    gameoverTex = loadTexture("res/gfx/gameover.png");
+    youwinTex = loadTexture("res/gfx/youwin.png");
     //animation clips
     playerClips = {
         makeClips(0, 4, 70, 70),
@@ -48,6 +52,8 @@ Media::Media(SDL_Renderer *renderer)
     chestClips = {
         makeClips(0, 1, 100, 100),
         makeClips(1, 1, 100, 100)};
+    quaiClips = {
+        makeClips(0, 1, 50, 50)};
 
 
     //sound
@@ -67,24 +73,24 @@ Media::Media(SDL_Renderer *renderer)
 SDL_Texture *Media::loadTexture(const char *filePath)
 {
     SDL_Texture *texture = NULL;
-    texture = IMG_LoadTexture(renderer, filePath);  //load texture from path
-    if(texture==NULL) std::cout << "Texture failed: " << SDL_GetError() << std::endl;   //catch error
+    texture = IMG_LoadTexture(renderer, filePath);
+    if(texture==NULL) std::cout << "Texture failed: " << SDL_GetError() << std::endl;
     return texture;
 }
 
 Mix_Music *Media::loadMusic(const char *filePath)
 {
     Mix_Music *music = NULL;
-    music = Mix_LoadMUS(filePath);  //load texture from path
-    if(music==NULL) std::cout << "Music failed: " << Mix_GetError() << std::endl;   //catch error
+    music = Mix_LoadMUS(filePath);
+    if(music==NULL) std::cout << "Music failed: " << Mix_GetError() << std::endl;
     return music;
 }
 
 Mix_Chunk *Media::loadSfx(const char *filePath)
 {
     Mix_Chunk *sfx = NULL;
-    sfx = Mix_LoadWAV(filePath);  //load texture from path
-    if(sfx==NULL) std::cout << "Sfx failed: " << Mix_GetError() << std::endl;   //catch error
+    sfx = Mix_LoadWAV(filePath);
+    if(sfx==NULL) std::cout << "Sfx failed: " << Mix_GetError() << std::endl;
     return sfx;
 }
 
@@ -93,10 +99,10 @@ Mix_Chunk *Media::loadSfx(const char *filePath)
 std::vector<SDL_Point> Media::makeClips(int animNo, int frames, int w, int h)
 {
     std::vector<SDL_Point> clips;
-    int y = animNo * h;             //all y values will be set to row number * frame height
+    int y = animNo * h;
     for (int i = 0; i < frames; i++)
     {
-        int x = i * w;              //each x value is a multiple of frame width
+        int x = i * w;
         SDL_Point p{x, y};
         clips.push_back(p);
     }

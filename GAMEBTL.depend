@@ -9,10 +9,11 @@
 1711817440 d:\c++\gamebtl\loadimage.h
 	<string>
 
-1713104552 source:d:\c++\gamebtl\main.cpp
+1714065261 source:d:\c++\gamebtl\main.cpp
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
+	<SDL_ttf.h>
 	<iostream>
 	<vector>
 	<cmath>
@@ -20,14 +21,15 @@
 	"media.h"
 	"entity.h"
 	"map.h"
+	"question.h"
 
-1713376718 source:d:\c++\gamebtl\entity.cpp
+1714065254 source:d:\c++\gamebtl\entity.cpp
 	"entity.h"
 	"question.h"
 	<SDL.h>
 	<SDL_image.h>
 
-1713173898 d:\c++\gamebtl\entity.h
+1714065254 d:\c++\gamebtl\entity.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -37,20 +39,20 @@
 	"cnst.h"
 	"map.h"
 
-1713376753 d:\c++\gamebtl\cnst.h
+1714065254 d:\c++\gamebtl\cnst.h
 
-1713376793 d:\c++\gamebtl\map.h
-	<SDL.h>
-	<SDL_image.h>
-	<SDL_mixer.h>
+1714065716 d:\c++\gamebtl\map.h
 	<iostream>
 	<vector>
 	<cmath>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
 	"cnst.h"
 	"media.h"
 	"entity.h"
 
-1712770294 d:\c++\gamebtl\media.h
+1714065254 d:\c++\gamebtl\media.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -58,9 +60,12 @@
 	<vector>
 	<cmath>
 
-1713461652 d:\c++\gamebtl\question.h
+1714065254 d:\c++\gamebtl\question.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_ttf.h>
 	<iostream>
+
+1714065254 source:d:\c++\gamebtl\map.cpp
+	"map.h"
 
