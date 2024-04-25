@@ -23,8 +23,8 @@ void Entity::setPos(float x, float y)
 //render entity tex to screen
 void Entity::render(int offsetX, int offsetY, SDL_Renderer *renderer)
 {
-    SDL_Rect dest;          //render destination
-    dest.x = x + offsetX;   //entitiy world position + camera offsets
+    SDL_Rect dest;
+    dest.x = x + offsetX;
     dest.y = y + offsetY;
     dest.w = currentClip.w;
     dest.h = currentClip.h;
@@ -38,6 +38,8 @@ void Entity::updateGravity(float gravity) {}
 void Entity::updateCollisions(Map *map) {}
 void Entity::updateKeyDoor(Map *map) {}
 void Entity::updateChest(Map *map) {}
+bool Entity::checkChest(Map *map) {}
+bool Entity::checkQuai(Map *map) {}
 
 
 //---------------------------------------- AnimEntity ----------------------------------------
@@ -50,15 +52,15 @@ AnimEntity::AnimEntity(int x, int y, SDL_Texture *tex, int w, int h, std::vector
 void AnimEntity::updateClips()
 {
     int noOfFrames = clips->at(animNo).size();
-    frameNo = ((float)SDL_GetTicks() - animStart) / animDelay;      //current frame is calculated from current time - animStart time
+    frameNo = ((float)SDL_GetTicks() - animStart) / animDelay;
 
-    if (animType == cnst::ANIM_DEFAULT && frameNo >= noOfFrames)                        //play once then set to default animation
+    if (animType == cnst::ANIM_DEFAULT && frameNo >= noOfFrames)
     {
         animType = cnst::ANIM_REPEAT;
         animNo = 0;
     }
-    if (animType == cnst::ANIM_END && frameNo >= noOfFrames) frameNo = noOfFrames - 1;  //play once and stop on last frame
-    if (animType == cnst::ANIM_REPEAT) frameNo %= noOfFrames;                           //loop current animation
+    if (animType == cnst::ANIM_END && frameNo >= noOfFrames) frameNo = noOfFrames - 1;
+    if (animType == cnst::ANIM_REPEAT) frameNo %= noOfFrames;
     //update clips
     currentClip.x = clips->at(animNo).at(frameNo).x;
     currentClip.y = clips->at(animNo).at(frameNo).y;
@@ -70,7 +72,7 @@ void AnimEntity::setAnim(int animNo, int animType, int animDelay)
     this->animNo = animNo;
     this->animType = animType;
     this->animDelay = animDelay;
-    animStart = SDL_GetTicks();     //animation start time
+    animStart = SDL_GetTicks();
 }
 
 int AnimEntity::getAnim() { return animNo; }
@@ -84,7 +86,7 @@ ActiveEntity::ActiveEntity(int x, int y, SDL_Texture *tex, int w, int h, std::ve
 
 void ActiveEntity::updatePos()
 {
-    if (fabs(xVel) < 0.01) xVel = 0;    //truncate if value is small
+    if (fabs(xVel) < 0.01) xVel = 0;
     if (fabs(yVel) < 0.01) yVel = 0;
     x += xVel;
     y += yVel;
@@ -103,16 +105,16 @@ void ActiveEntity::updateCollisions(Map *map)
 {
     if (collisions)
     {
-        if (xVel >= 0)      //if moving right
+        if (xVel >= 0)
         {
-            if (map->checkCollision('r', this, 1))  //if entity will collide with wall to the right
+            if (map->checkCollision('r', this, 1))
             {
-                xVel = 0;   //stop
-                if ((int)prevX % 50 > 0) x = (int)prevX - (int)prevX % 50 + 50; //align entity with wall
+                xVel = 0;
+                if ((int)prevX % 50 > 0) x = (int)prevX - (int)prevX % 50 + 50;
                 else x = (int)prevX;
             }
         }
-        else                //left
+        else
         {
             if (map->checkCollision('l', this, 1))
             {
@@ -121,7 +123,7 @@ void ActiveEntity::updateCollisions(Map *map)
                 else x = (int)prevX;
             }
         }
-        if (yVel >= 0)      //up
+        if (yVel >= 0)
         {
             if (map->checkCollision('d', this, 1))
             {
@@ -130,7 +132,7 @@ void ActiveEntity::updateCollisions(Map *map)
                 else y = (int)prevY;
             }
         }
-        else                //down
+        else
         {
             if (map->checkCollision('u', this, 1))
             {
@@ -164,7 +166,7 @@ AnimEntity *dust1, AnimEntity *dust2)
 void Player::render(int offsetX, int offsetY, SDL_Renderer *renderer)
 {
     SDL_Rect dest;
-    dest.x = x + offsetX - 10;      //player sprite has extra offset
+    dest.x = x + offsetX - 10;
     dest.y = y + offsetY - 10;
     dest.w = currentClip.w;
     dest.h = currentClip.h;
@@ -176,7 +178,7 @@ void Player::moveLeft()
     if (!isStunned())
     {
         xVel -= 0.5;
-        if (getAnim() != 2) setAnim(2, cnst::ANIM_REPEAT, 80);      //moving left animation
+        if (getAnim() != 2) setAnim(2, cnst::ANIM_REPEAT, 80);
     }
 }
 
@@ -185,32 +187,32 @@ void Player::moveRight()
     if (!isStunned())
     {
         xVel += 0.5;
-        if (getAnim() != 1) setAnim(1, cnst::ANIM_REPEAT, 80);      //moving right animation
+        if (getAnim() != 1) setAnim(1, cnst::ANIM_REPEAT, 80);
     }
 }
 
 bool Player::isStunned()
 {
-    return (SDL_GetTicks() < stunTime) ? true : false;      //if current time is not yet stunTime, player is stunned
+    return (SDL_GetTicks() < stunTime) ? true : false;
 }
 void Player::stun(int duration)
 {
-    stunTime = SDL_GetTicks() + duration;                   //set stun time to current time + specified stun duration
+    stunTime = SDL_GetTicks() + duration;
 }
 
 void Player::dash()
 {
     if (abs(xVel != 0) && !isStunned() && SDL_GetTicks() > dashTime)
     {
-        yVel = 0;                           //stop player falling
-        if (xVel > 0) xVel = 22;            //if payer is moving right, dash right
+        yVel = 0;
+        if (xVel > 0) xVel = 22;
         else xVel = -22;
-        dashTime = SDL_GetTicks() + 800;    //dash has an 800ms cooldown
+        dashTime = SDL_GetTicks() + 800;
         dust1->setPos(x - 20, y - 30);
         dust1->setAnim(4, cnst::ANIM_END, 30);
         dust2->setPos(x - 20, y + 30);
         dust2->setAnim(5, cnst::ANIM_END, 30);
-        Mix_PlayChannel(-1, dashSfx, 0);    //dash sound
+        Mix_PlayChannel(-1, dashSfx, 0);
     }
 }
 void Player::jump()
@@ -218,14 +220,14 @@ void Player::jump()
     if (!isStunned())
     {
         yVel = -12;
-        if (!onGround)          //if double jump
+        if (!onGround)
         {
             canDoubleJump = false;
-            dust1->setPos(x - 30, y + 20);      //dust cloud
+            dust1->setPos(x - 30, y + 20);
             dust1->setAnim(2, cnst::ANIM_END, 30);
             dust2->setPos(x + 30, y + 20);
             dust2->setAnim(3, cnst::ANIM_END, 30);
-            Mix_PlayChannel(-1, jumpSfx, 0);    //double jump sound
+            Mix_PlayChannel(-1, jumpSfx, 0);
         }
         onGround = false;
     }
@@ -240,17 +242,17 @@ void Player::drag(float drag) { xVel *= drag; }
 //player collision
 void Player::updateCollisions(Map *map)
 {
-    onGround = false;   //start by assuming player is not on ground, then update to true when player collides with ground
-    if (xVel >= 0)      //if moving right
+    onGround = false;
+    if (xVel >= 0)
     {
-        if (map->checkCollision('r', this, 1))  //if entity will collide with wall to the right
+        if (map->checkCollision('r', this, 1))
         {
-            xVel = 0;   //stop
-            if ((int)prevX % 50 > 0) x = (int)prevX - (int)prevX % 50 + 50; //align entity with wall
+            xVel = 0;
+            if ((int)prevX % 50 > 0) x = (int)prevX - (int)prevX % 50 + 50;
             else x = (int)prevX;
         }
     }
-    else                //left
+    else
     {
         if (map->checkCollision('l', this, 1) || x + xVel < 0)
         {
@@ -259,7 +261,7 @@ void Player::updateCollisions(Map *map)
             else x = (int)prevX;
         }
     }
-    if (yVel >= 0)      //down
+    if (yVel >= 0)
     {
         if (map->checkCollision('d', this, 1))
         {
@@ -268,23 +270,23 @@ void Player::updateCollisions(Map *map)
             if ((int)prevY % 50 > 0) y = (int)prevY - (int)prevY % 50 + 50;
             else y = (int)prevY;
 
-            if (oldYVel >= cnst::TERMINAL_VEL)                  //if player has hit the ground at max speed
+            if (oldYVel >= cnst::TERMINAL_VEL)
             {
-                xVel = 0;                                       //stop sideways motion
-                setAnim(3, cnst::ANIM_DEFAULT, 100);            //play wince animation
-                stun(400);                                      //stun player for a short period
+                xVel = 0;
+                setAnim(3, cnst::ANIM_DEFAULT, 100);
+                stun(400);
                 map->shakeCamera(12);
-                dust1->setPos(x - 60, y);                       //dust cloud
+                dust1->setPos(x - 60, y);
                 dust1->setAnim(0, cnst::ANIM_END, 100);
                 dust2->setPos(x + 60, y);
                 dust2->setAnim(1, cnst::ANIM_END, 100);
-                Mix_PlayChannel(-1, thudSfx, 0);                //thud sound
+                Mix_PlayChannel(-1, thudSfx, 0);
             }
             onGround = true;
             canDoubleJump = true;
         }
     }
-    else                //up
+    else
     {
         if (map->checkCollision('u', this, 1))
         {
@@ -312,13 +314,13 @@ void Door::updateKeyDoor(Map *map)
     {
         open = true;
         player->useKey();
-        setAnim(1, cnst::ANIM_END, 50);                             //open door animation
+        setAnim(1, cnst::ANIM_END, 50);
         player->stun(500);
-        map->setTile(x/cnst::TILE_SIZE, y/cnst::TILE_SIZE, 2);      //set tiles under door to blackground
+        map->setTile(x/cnst::TILE_SIZE, y/cnst::TILE_SIZE, 2);
         map->setTile(x/cnst::TILE_SIZE, y/cnst::TILE_SIZE + 1, 2);
         map->setTile(x/cnst::TILE_SIZE, y/cnst::TILE_SIZE + 2, 2);
         map->setTile(x/cnst::TILE_SIZE, y/cnst::TILE_SIZE + 3, 2);
-        Mix_PlayChannel(-1, doorSfx, 0);                            //door opening sound
+        Mix_PlayChannel(-1, doorSfx, 0);
     }
 }
 
@@ -337,8 +339,8 @@ void Key::updateKeyDoor(Map *map)
         std::cout << "true";
         collected = true;
         player->addKey();
-        setAnim(1, cnst::ANIM_END, 1);      //blank frame
-        Mix_PlayChannel(-1, keySfx, 0);     //key collect sound
+        setAnim(1, cnst::ANIM_END, 1);
+        Mix_PlayChannel(-1, keySfx, 0);
     }
 }
 
@@ -346,7 +348,7 @@ void Key::render(int offsetX, int offsetY, SDL_Renderer *renderer)
 {
     SDL_Rect dest;
     dest.x = x + offsetX;
-    dest.y = y + offsetY + 5*sin(SDL_GetTicks()/200.0f);    //key hovers up and down using sin(time)
+    dest.y = y + offsetY + 5*sin(SDL_GetTicks()/200.0f);
     dest.w = currentClip.w;
     dest.h = currentClip.h;
     SDL_RenderCopy(renderer, tex, &currentClip, &dest);
@@ -363,18 +365,26 @@ void Chest::updateChest(Map *map)
     && player->getX() + 100 > x && player->getX() - currentClip.w < x
     && player->getY() + 100 > y && player->getY() - currentClip.h < y)
     {
-        std::cout << "true";
-        collected = true;
+        //std::cout << "true";
+        //collected = true;
         setAnim(1, cnst::ANIM_END, 1);
         Mix_PlayChannel(-1, chestSfx, 0);
 
-        SDL_Delay(1000);
-        SDL2ImageRenderer x(nullptr);
-        std ::string a = "res/gfx/question1.png";
-        x.question2(a);
-
+        //std::cout << x << " " << y;
 
     }
+}
+
+bool Chest::checkChest(Map *map)
+{
+    if (!collected
+    && player->getX() + 100 > x && player->getX() - currentClip.w < x
+    && player->getY() + 100 > y && player->getY() - currentClip.h < y)
+    {
+
+    return true;
+    }
+    return false;
 }
 
 
@@ -383,6 +393,31 @@ void Chest::render(int offsetX, int offsetY, SDL_Renderer *renderer)
     SDL_Rect dest;
     dest.x = x + offsetX;
     dest.y = y + offsetY + 5*sin(SDL_GetTicks()/200.0f);
+    dest.w = currentClip.w;
+    dest.h = currentClip.h;
+    SDL_RenderCopy(renderer, tex, &currentClip, &dest);
+}
+
+//---------------------------------------- Quai ----------------------------------------
+Quai::Quai(int x, int y, SDL_Texture *tex, std::vector<std::vector<SDL_Point>> *clips, Player *player)
+: AnimEntity(x, y, tex, 100, 100, clips), player(player)
+{}
+
+bool Quai::checkQuai(Map *map)
+{
+    if (player->getX() + 100 > x && player->getX() - currentClip.w < x
+        && player->getY() + 100 > y && player->getY() - currentClip.h < y)
+    {
+
+        return true;
+    }
+    return false;
+}
+void Quai::render(int offsetX, int offsetY, SDL_Renderer *renderer)
+{
+    SDL_Rect dest;
+    dest.x = x + offsetX;
+    dest.y = y + offsetY;
     dest.w = currentClip.w;
     dest.h = currentClip.h;
     SDL_RenderCopy(renderer, tex, &currentClip, &dest);
