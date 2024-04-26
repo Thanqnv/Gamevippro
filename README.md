@@ -6,6 +6,7 @@
 - Mã học phần: INT2215-52
 
 ## Thử nghiệm game: 
+- [Demo game](https://drive.google.com/drive/folders/1QIdPt9BRmcDCqOShmgsJHngmGWgc5cFk)
 ### Giới thiệu game
 *Castle of knowledge* là 1 game thuộc thể loại trí tuệ, phiêu lưu. Game thực hiện công việc đi tìm các rương kho báu mà trong đó chứa các từ khóa giúp người chơi có thể trả lời được câu hỏi ở hòm rương cuối cùng. Để tìm được rương thì người chơi phải tìm kiếm các chìa khóa để mở cửa để đi qua các khu vực của lâu đài và trong những hòm rương kho báu sẽ có những con quái vật bảo vệ kho báu. Với hòm rương cuối cùng bạn sẽ có 3 lần nhập mã khóa cho rương nếu thành công bạn sẽ giành chiến thắng, sau 3 lần đoán sai bạn sẽ thua.
 ![image](./readme/menu.png)
