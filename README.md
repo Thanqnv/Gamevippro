@@ -2,35 +2,41 @@
 ## Giới thiệu bản thân:
 - Họ và tên: Nguyễn Văn Thắng
 - MSSV: 23020707
-- Lớp: INT2215 52
+- Lớp: K68J - UET
+- Mã học phần: INT2215-52
 
 ## Thử nghiệm game: 
 ### Giới thiệu game
 *Castle of knowledge* là 1 game thuộc thể loại trí tuệ, phiêu lưu. Game thực hiện công việc đi tìm các rương kho báu mà trong đó chứa các từ khóa giúp người chơi có thể trả lời được câu hỏi ở hòm rương cuối cùng. Để tìm được rương thì người chơi phải tìm kiếm các chìa khóa để mở cửa để đi qua các khu vực của lâu đài và trong những hòm rương kho báu sẽ có những con quái vật bảo vệ kho báu. Với hòm rương cuối cùng bạn sẽ có 3 lần nhập mã khóa cho rương nếu thành công bạn sẽ giành chiến thắng, sau 3 lần đoán sai bạn sẽ thua.
+![image](./readme/menu.png)
 
 ### 1. Bắt đầu game
 Nhấn vào nút **“PLAY”** để bắt đầu chơi game.
 
 ### 2. Các thành phần trong game
-- **Player (Người chơi):** là đối tượng trò chơi chính của trò chơi. Nó sẽ được tạo bằng cách chia hình ảnh và tạo clips cho những hình ảnh được cắt ra ấy bằng cách chạy nó từ trái sang phải.
-- **Background (Nền phía sau):** là hình ảnh những viên gạch được xây dựng để mục đích tạo thành không gian phía trong lâu đài.
-- **Floor (Gạch tường):** là những viên gạch được xây dựng để tạo bề mặt cho Player (người chơi) có thể đứng được trên đó, ngoài ra nó giới hạn bên trong lâu đài.
-- **Door (Cửa):** là những cánh cửa ngăn cách giữa các phần bên trong lâu đài.
-- **Key (Chìa khóa):** là những chìa khóa mà Player (người chơi) đi tìm để mở cửa để di chuyển đến các nơi khác trong lâu đài.
-- **Window (Cửa sổ):** nó là hình ảnh các cửa sổ trong lâu đài, nó giúp cho lâu đài được đẹp hơn.
-- **Starfield (Bầu trời sao):** Nó là hình ảnh những ngôi sao bên ngoài bầu trời, giúp khung cảnh lâu đài được tự nhiên hơn.
+- **Player (Người chơi):** ![image](./readme/player.png) là đối tượng trò chơi chính của trò chơi. Nó sẽ được tạo bằng cách chia hình ảnh và tạo clips cho những hình ảnh được cắt ra ấy bằng cách chạy nó từ trái sang phải.
+- **Background (Nền phía sau):** ![image](./readme/background.png)   là hình ảnh những viên gạch được xây dựng để mục đích tạo thành không gian phía trong lâu đài.
+- **Floor (Gạch tường):** ![image](./readme/floor.png)  là những viên gạch được xây dựng để tạo bề mặt cho Player (người chơi) có thể đứng được trên đó, ngoài ra nó giới hạn bên trong lâu đài.
+- **Door (Cửa):** ![image](./readme/door.png) là những cánh cửa ngăn cách giữa các phần bên trong lâu đài.
+- **Key (Chìa khóa):** ![image](./readme/key.png)  là những chìa khóa mà Player (người chơi) đi tìm để mở cửa để di chuyển đến các nơi khác trong lâu đài.
+- **Window (Cửa sổ):** ![image](./readme/window.png)  nó là hình ảnh các cửa sổ trong lâu đài, nó giúp cho lâu đài được đẹp hơn.
+- **Starfield (Bầu trời sao):** ![image](./readme/starfield.png)  Nó là hình ảnh những ngôi sao bên ngoài bầu trời, giúp khung cảnh lâu đài được tự nhiên hơn.
 - **Dust (Bụi):** là hạt bụi được hình thành khi Player (người chơi) nhảy liên tục 2 lần.
-- **Tutorial (Hướng dẫn):** Là văn bản hướng dẫn cách chơi trong game.
-- **Chest (Rương kho báu):** Sẽ có 2 loại rương kho báu, khi gặp những rương này thì Player (người chơi) sẽ mở ra được một từ khóa, từ khóa này là những gợi ý cho câu hỏi ở rương cuối cùng. Nếu bạn tìm đến được rương cuối cùng thì bạn sẽ phải nhập mật khẩu khóa cho cái rương cuối cùng này.
-- **Keyword (Từ khóa):** Đây là những từ khóa gợi ý khi bạn mở được rương kho báu.
-- **Monster (Quái vật):** Là những con canh giữ rương kho báu, nếu bạn chạm vào thì sẽ bị thua.
+- **Tutorial (Hướng dẫn):** ![image](./readme/tutorial.png)  Là văn bản hướng dẫn cách chơi trong game.
+- **Chest (Rương kho báu):** ![image](./readme/rương1.png) Sẽ có 2 loại rương kho báu, khi gặp những rương này thì Player (người chơi) sẽ mở ra được một từ khóa, từ khóa này là những gợi ý cho câu hỏi ở rương cuối cùng. Nếu bạn tìm đến được rương cuối cùng thì bạn sẽ phải nhập mật khẩu khóa cho cái rương cuối cùng này.
+- **Keyword (Từ khóa):** ![image](./readme/sao2.png) Đây là những từ khóa gợi ý khi bạn mở được rương kho báu.
+- **Monster (Quái vật):** ![image](./readme/quai.png) Là những con canh giữ rương kho báu, nếu bạn chạm vào thì sẽ bị thua.
+- **Question (Câu hỏi):** ![image](./readme/question.png) Là câu hỏi cuối cùng khi bạn chạm vào rương kết thúc
 
 ### 4. Cách chơi
-Người chơi sẽ sử dụng các phím mũi tên phải, trái để di chuyển người chơi tương ứng với sang phải và sang trái. Di chuyển để đi tìm được những rương kho báu, và thu thập chìa khóa để có thể mở cửa và đi tìm được rương kho báu cuối cùng. Trả lời mã khóa nếu đúng thì bạn thắng, sau 3 lần đoán sai thì bạn sẽ thua.
+Người chơi sẽ sử dụng các phím mũi tên phải(**-->**), trái(**<--**) để di chuyển người chơi tương ứng với sang phải và sang trái. Di chuyển để đi tìm được những rương kho báu, và thu thập chìa khóa để có thể mở cửa và đi tìm được rương kho báu cuối cùng. Trả lời mã khóa nếu đúng thì bạn thắng, sau 3 lần đoán sai thì bạn sẽ thua.
 
 ### 5. Chiến thắng và thất bại
 - **Chiến thắng:** Bạn chiến thắng khi trả lời đúng mã khóa.
+![image](./readme/youwin.png)
 - **Thất bại:** Bạn thất bại khi chạm vào quái vật hoặc sau 3 lần đoán mã khóa bị sai.
+![image](./readme/gameover.png)
+
 
 ## 6. Source code game
 - **res:** Chứa folder war chứa file âm thanh của toàn bộ trò chơi và folder gfx sẽ chữa toàn bộ hình ảnh được hiện thị trong game.
