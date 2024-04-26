@@ -366,7 +366,7 @@ void Chest::updateChest(Map *map)
     && player->getY() + 100 > y && player->getY() - currentClip.h < y)
     {
         //std::cout << "true";
-        //collected = true;
+        collected = true;
         setAnim(1, cnst::ANIM_END, 1);
         Mix_PlayChannel(-1, chestSfx, 0);
 

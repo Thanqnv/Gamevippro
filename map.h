@@ -1,11 +1,12 @@
+
 #pragma once
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <iostream>
 #include <vector>
 #include <cmath>
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
 #include "cnst.h"
 #include "media.h"
 #include "entity.h"

@@ -12,7 +12,6 @@
 #include "map.h"
 #include "question.h"
 
-
 int main(int argc, char* args[])
 {
     //init systems
@@ -237,9 +236,9 @@ int main(int argc, char* args[])
                 entities.push_back(&sao2);
             }
 
-            if (chest4.checkChest(&map) && guess >= 0)
+            if ((chest4.checkChest(&map) && guess >= 0) || win == true)
             {
-
+                win = true;
                 tempTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 0, 0);
                 SDL_SetRenderTarget(renderer, tempTexture);
                 SDL_RenderCopy(renderer, media.questionTex, NULL, &dest);
@@ -313,13 +312,15 @@ int main(int argc, char* args[])
                     }
                     if (s.length() < 5)
                     {
+                        TextureManager::DrawTexture(media.blockTex, renderer, 285, 485, 200, 100);
+                        SDL_RenderPresent(renderer);
 
                         textColor = {0, 0, 0};
                         textSurface = TTF_RenderUTF8_Blended(font, s.c_str(), textColor);
 
                         textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-                        rect = {300, 500, (s.length() * 20) - 5 - (2 * s.length()), 50};
+                        rect = {320, 500, (s.length() * 20) - 5 - (2 * s.length()), 50};
 
                         SDL_RenderCopy(renderer, textTexture, NULL, &rect);
                         SDL_RenderPresent(renderer);
@@ -343,14 +344,14 @@ int main(int argc, char* args[])
 
                         SDL_FreeSurface(textSurface);
 
-                        rect = {300, 500, (s.length() * 20) - (2 * s.length()), 50};
+                        rect = {320, 500, (s.length() * 20) - (2 * s.length()), 50};
 
                         SDL_RenderCopy(renderer, textTexture, NULL, &rect);
                         SDL_RenderPresent(renderer);
                         Mix_PlayChannel(-1, media.correctSfx, 0);
                         TextureManager::DrawTexture(media.youwinTex, renderer, 250, 100, 500, 600);
                         SDL_RenderPresent(renderer);
-                        SDL_Delay(700);
+                        SDL_Delay(1000);
                         SDL_DestroyWindow(window);
                         SDL_Quit();
                         gameRunning = false;
@@ -372,7 +373,7 @@ int main(int argc, char* args[])
 
                         SDL_FreeSurface(textSurface);
 
-                        rect = {300, 500, (s.length() * 20) - (2 * s.length()), 50};
+                        rect = {320, 500, (s.length() * 20) - (2 * s.length()), 50};
                         SDL_RenderCopy(renderer, textTexture, NULL, &rect);
                         SDL_RenderPresent(renderer);
                         Mix_PlayChannel(-1, media.wrongSfx, 0);
@@ -385,7 +386,7 @@ int main(int argc, char* args[])
                         TextureManager::DrawTexture(media.gameoverTex, renderer, 250, 100, 500, 600);
 
                         SDL_RenderPresent(renderer);
-                        SDL_Delay(700);
+                        SDL_Delay(1000);
                         SDL_DestroyWindow(window);
                         SDL_Quit();
                         gameRunning = false;

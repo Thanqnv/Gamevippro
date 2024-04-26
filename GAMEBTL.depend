@@ -9,7 +9,7 @@
 1711817440 d:\c++\gamebtl\loadimage.h
 	<string>
 
-1714065261 source:d:\c++\gamebtl\main.cpp
+1714135745 source:d:\c++\gamebtl\main.cpp
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -23,7 +23,7 @@
 	"map.h"
 	"question.h"
 
-1714065254 source:d:\c++\gamebtl\entity.cpp
+1714135745 source:d:\c++\gamebtl\entity.cpp
 	"entity.h"
 	"question.h"
 	<SDL.h>
